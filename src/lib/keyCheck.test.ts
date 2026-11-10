@@ -1,12 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isSecretKey } from './keyCheck.ts';
+import { isPublicKey } from './keyCheck.ts';
 
 const jwt = (role: string) => `x.${Buffer.from(JSON.stringify({ role })).toString('base64url')}.y`;
 
-test('secret·service_role 키는 막고 공개용 키는 통과', () => {
-  assert.equal(isSecretKey('sb_secret_abc'), true);
-  assert.equal(isSecretKey(jwt('service_role')), true);
-  assert.equal(isSecretKey('sb_publishable_abc'), false);
-  assert.equal(isSecretKey(jwt('anon')), false);
+test('공개용 키만 통과', () => {
+  assert.equal(isPublicKey('sb_publishable_abc'), true);
+  assert.equal(isPublicKey(' sb_publishable_abc\n'), true);
+  assert.equal(isPublicKey(jwt('anon')), true);
+});
+
+test('secret·service_role·모르는 모양은 막는다', () => {
+  assert.equal(isPublicKey('sb_secret_abc'), false);
+  assert.equal(isPublicKey(jwt('service_role')), false);
+  assert.equal(isPublicKey('something-else'), false);
+  assert.equal(isPublicKey('a.not-base64!.c'), false);
+  assert.equal(isPublicKey(''), false);
 });
