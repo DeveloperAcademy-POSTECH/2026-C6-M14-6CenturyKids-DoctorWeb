@@ -1,0 +1,13 @@
+# 의존성·빌드 결과
+node_modules/
+dist/
+*.log
+
+# 키 파일: 예시(.env.example)만 올린다
+.env*
+!.env.example
+
+# OS·편집기
+.DS_Store
+.vscode/
+.idea/
