@@ -45,8 +45,8 @@ export default function SymptomPanel({ records, jump }: Props) {
     <section className="panel symptom" aria-labelledby="h-symptom">
       <div className="panel-head">
         <h2 id="h-symptom">증상 기록</h2>
-        <span className="hint">음성 대화로 남긴 답</span>
-        {records.length > 0 && <span className="range">전체 {records.length}일 기록</span>}
+        <span className="hint">음성 대화를 통해 하루동안 있었던 증상</span>
+        {records.length > 0 && <span className="range">{records.length}일</span>}
       </div>
       <div className="panel-body" ref={container}>
         {!windows && <p className="empty-note">아직 증상 기록이 없어요</p>}
@@ -87,11 +87,15 @@ function WeekGrid({ days, byDay, rows, focusDay, onPick }: {
 
   return (
     <>
+      <div className="grid-title">
+        <h4>주간 증상 기록 그래프</h4>
+        <span>점을 선택하면 상세 기록으로 이동해요</span>
+      </div>
       <div className="grid-wrap">
         <table className="sym-grid">
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: 'left', paddingLeft: 12 }}>이 기간 한눈에</th>
+              <th scope="col" aria-label="증상" />
               {days.map((t) => (
                 <th key={dayKey(t)} scope="col" className={`${byDay.has(dayKey(t)) ? '' : 'off'} ${focusDay === dayKey(t) ? 'focus' : ''}`}>
                   <b>{t.getMonth() + 1}/{t.getDate()}</b>{weekday(t)}
@@ -115,7 +119,6 @@ function WeekGrid({ days, byDay, rows, focusDay, onPick }: {
         <span><i className="mark absent" />없음</span>
         <span><b className="mark unknown">?</b>모름</span>
         <span>빈 칸: 그날 기록 없음 · 묻지 못함</span>
-        <span>점을 누르면 그 기록으로 가요</span>
       </div>
     </>
   );
