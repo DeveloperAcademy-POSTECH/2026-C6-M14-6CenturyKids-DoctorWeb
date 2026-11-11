@@ -240,4 +240,4 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .center-note p { margin: 0; }
 .row-btns { display: flex; gap: 8px; }
 .patient .pager { margin-block: -6px; }
-.patient .account { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--fg-sub); }
+.patient .header-end { margin-left: auto; display: flex; align-items: center; gap: 14px; }

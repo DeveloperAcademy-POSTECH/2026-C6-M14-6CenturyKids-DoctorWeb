@@ -68,7 +68,7 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
 
   return (
     <div className="app">
-      <PatientHeader patient={patient} doctorName={doctorName} sample={sample} failed={failed}
+      <PatientHeader patient={patient} sample={sample} failed={failed}
         listOpen={listOpen} onOpenList={() => setListOpen(true)} onSignOut={onSignOut}
         period={windows ? { days, k, max: windows.max, onChange: (next) => { setK(next); setJump(null); } } : undefined} />
       <main className={`cols ${listOpen ? '' : 'collapsed'}`}>
