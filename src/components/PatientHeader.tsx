@@ -1,6 +1,7 @@
 import type { Patient } from '../domain/types.ts';
 import { hm, mdw } from '../lib/dates.ts';
 import { lastRecordDate } from '../lib/patientSummary.ts';
+import Pager from './Pager.tsx';
 
 interface Props {
   patient: Patient;
@@ -10,11 +11,13 @@ interface Props {
   listOpen: boolean;
   onOpenList: () => void;
   onSignOut: () => void;
+  /** 통증·증상 칸이 함께 보는 7일 (기록이 없으면 없음) */
+  period?: { days: Date[]; k: number; max: number; onChange: (k: number) => void };
 }
 
 export const patientMeta = (p: Patient) => [p.sex, p.age !== undefined ? `${p.age}세` : undefined].filter(Boolean).join(' · ');
 
-export default function PatientHeader({ patient, doctorName, sample, failed, listOpen, onOpenList, onSignOut }: Props) {
+export default function PatientHeader({ patient, doctorName, sample, failed, listOpen, onOpenList, onSignOut, period }: Props) {
   const last = lastRecordDate(patient);
   return (
     <header className="patient" aria-label="환자 정보">
@@ -25,6 +28,7 @@ export default function PatientHeader({ patient, doctorName, sample, failed, lis
       <dl className="field"><dt>마지막 기록</dt><dd>{last ? `${mdw(last)} ${hm(last)}` : '없음'}</dd></dl>
       {sample && <span className="sample">예시 데이터</span>}
       {failed.length > 0 && <span className="review">{failed.join(', ')}을 불러오지 못했어요</span>}
+      {period && <Pager {...period} />}
       <div className="account">
         {doctorName && <span>{doctorName} 선생님</span>}
         <button type="button" className="icon-btn" onClick={onSignOut}>{sample ? '예시 닫기' : '로그아웃'}</button>

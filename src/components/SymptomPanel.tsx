@@ -1,29 +1,35 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Jump } from './Workspace.tsx';
 import { CARE_CALL_TYPES, COUNT_PREFIX, SYMPTOM_NAMES, locationName } from '../domain/labels.ts';
 import type { SymptomEntry, SymptomRecord, SymptomType } from '../domain/types.ts';
-import { dayKey, hm, mdw, weekWindows, weekday } from '../lib/dates.ts';
+import { dayKey, hm, mdw, weekday } from '../lib/dates.ts';
 import { isReview, parseDetail } from '../lib/symptomDetail.ts';
 import { useScrollTo } from '../lib/useScrollTo.ts';
-import Pager from './Pager.tsx';
 
 interface Props {
   records: SymptomRecord[];
+  /** 통증·증상 칸이 함께 보는 7일 */
+  days: Date[];
   jump: Jump | null;
 }
 
 /** 증상 기록: 7일 단위, 위는 한눈에 보는 표, 아래는 날짜별 줄글 */
-export default function SymptomPanel({ records, jump }: Props) {
-  const windows = useMemo(() => weekWindows(records.map((r) => r.recordedDate)), [records]);
-  const [k, setK] = useState(0);
+export default function SymptomPanel({ records, days, jump }: Props) {
   const [focusDay, setFocusDay] = useState<string | null>(null);
   const [target, setTarget] = useState<string | null>(null);
   const { container, scrollTo, toTop } = useScrollTo<HTMLDivElement>();
 
+  // 기간이 바뀌면 강조를 풀고 맨 위로 (날짜로 가기는 아래 효과가 다시 고른다)
+  const start = days[0]?.getTime();
   useEffect(() => {
-    if (!jump || !windows) return;
+    setFocusDay(null);
+    setTarget(null);
+    toTop();
+  }, [start]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!jump) return;
     const day = dayKey(jump.date);
-    setK(windows.indexOf(jump.date));
     setFocusDay(day);
     setTarget(null);
     scrollTo(`[data-daycard="${day}"]`);
@@ -35,7 +41,6 @@ export default function SymptomPanel({ records, jump }: Props) {
     scrollTo(`[data-entry="${day}:${type}"]`, 'center');
   };
 
-  const days = windows?.days(k) ?? [];
   const byDay = new Map(records.map((r) => [dayKey(r.recordedDate), r]));
   const inWindow = days.map((t) => byDay.get(dayKey(t))).filter((r): r is SymptomRecord => !!r);
   const rows: SymptomType[] = inWindow.some((r) => r.symptoms.some((e) => e.symptomType === 'other'))
@@ -49,16 +54,12 @@ export default function SymptomPanel({ records, jump }: Props) {
         {records.length > 0 && <span className="range">{records.length}일</span>}
       </div>
       <div className="panel-body" ref={container}>
-        {!windows && <p className="empty-note">아직 증상 기록이 없어요</p>}
-        {windows && <WeekGrid days={days} byDay={byDay} rows={rows} focusDay={focusDay} onPick={goToEntry} />}
-        {[...days].reverse().map((t) => (
+        {!records.length && <p className="empty-note">아직 증상 기록이 없어요</p>}
+        {records.length > 0 && <WeekGrid days={days} byDay={byDay} rows={rows} focusDay={focusDay} onPick={goToEntry} />}
+        {records.length > 0 && [...days].reverse().map((t) => (
           <DayCard key={dayKey(t)} date={t} record={byDay.get(dayKey(t))} focused={focusDay === dayKey(t)} target={target} />
         ))}
       </div>
-      {windows && (
-        <Pager days={days} k={k} max={windows.max} total={inWindow.length}
-          onChange={(next) => { setK(next); setFocusDay(null); setTarget(null); toTop(); }} />
-      )}
     </section>
   );
 }

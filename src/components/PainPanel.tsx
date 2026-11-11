@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Jump } from './Workspace.tsx';
 import { BODY_REGIONS, locationName, scoreColor } from '../domain/labels.ts';
 import type { PainRecord } from '../domain/types.ts';
-import { dayKey, hm, mdw, shortMdw, weekWindows, weekday } from '../lib/dates.ts';
+import { dayKey, hm, mdw, shortMdw, weekday } from '../lib/dates.ts';
 import { useScrollTo } from '../lib/useScrollTo.ts';
 import bodyImage from '../assets/pain-body.jpg';
-import Pager from './Pager.tsx';
 
 interface Props {
   records: PainRecord[];
+  /** 통증·증상 칸이 함께 보는 7일 */
+  days: Date[];
   jump: Jump | null;
 }
 
@@ -16,9 +17,7 @@ const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const round1 = (v: number) => String(Math.round(v * 10) / 10);
 
 /** 통증 기록: 앱 주 그래프 + 몸 그림 부위 + 기록 목록. 날짜를 누르면 그날만 */
-export default function PainPanel({ records, jump }: Props) {
-  const windows = useMemo(() => weekWindows(records.map((r) => r.recordedDate)), [records]);
-  const [k, setK] = useState(0);
+export default function PainPanel({ records, days, jump }: Props) {
   const [pickedDay, setPickedDay] = useState<string | null>(null);
   const { container, toTop } = useScrollTo<HTMLDivElement>();
 
@@ -28,13 +27,18 @@ export default function PainPanel({ records, jump }: Props) {
     return map;
   }, [records]);
 
+  // 기간이 바뀌면 고른 날을 풀고 맨 위로 (날짜로 가기는 아래 효과가 다시 고른다)
+  const start = days[0]?.getTime();
   useEffect(() => {
-    if (!jump || !windows) return;
-    setK(windows.indexOf(jump.date));
+    setPickedDay(null);
+    toTop();
+  }, [start]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!jump) return;
     setPickedDay(byDay.has(dayKey(jump.date)) ? dayKey(jump.date) : null);
   }, [jump]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const days = windows?.days(k) ?? [];
   const inWindow = days.flatMap((t) => byDay.get(dayKey(t)) ?? []);
   const scoped = pickedDay ? byDay.get(pickedDay) ?? [] : inWindow;
   const pairs = inWindow.filter((r) => r.painAfter !== undefined);
@@ -58,7 +62,7 @@ export default function PainPanel({ records, jump }: Props) {
         {records.length > 0 && <span className="range">{records.length}건</span>}
       </div>
       <div className="panel-body" ref={container}>
-        {!windows ? <p className="empty-note">아직 통증 기록이 없어요</p> : (
+        {!records.length ? <p className="empty-note">아직 통증 기록이 없어요</p> : (
           <>
             <div className="headline">
               <h4>통증 발생 당시와 1시간 뒤 통증 변화 그래프</h4>
@@ -88,10 +92,6 @@ export default function PainPanel({ records, jump }: Props) {
           </>
         )}
       </div>
-      {windows && (
-        <Pager days={days} k={k} max={windows.max} total={inWindow.length}
-          onChange={(next) => { setK(next); setPickedDay(null); toTop(); }} />
-      )}
     </section>
   );
 }

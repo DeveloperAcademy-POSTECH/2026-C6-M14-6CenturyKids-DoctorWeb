@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Patient } from '../domain/types.ts';
+import { weekWindows } from '../lib/dates.ts';
 import { lastRecordDate } from '../lib/patientSummary.ts';
 import { useMedia } from '../lib/useMedia.ts';
 import PainPanel from './PainPanel.tsx';
@@ -37,6 +38,9 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
     [...patients].sort((a, b) => (lastRecordDate(b)?.getTime() ?? 0) - (lastRecordDate(a)?.getTime() ?? 0))[0]?.id);
   const patient = patients.find((p) => p.id === patientId);
   const [jump, setJump] = useState<Jump | null>(null);
+  // 통증·증상 칸은 같은 7일을 함께 본다 (기준은 두 기록 중 더 늦은 날)
+  const windows = useMemo(() => patient && weekWindows([...patient.symptoms, ...patient.pains].map((r) => r.recordedDate)), [patient]);
+  const [k, setK] = useState(0);
 
   if (!patient) {
     return (
@@ -51,21 +55,29 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
     if (id !== patientId) {
       setPatientId(id);
       setJump(null);
+      setK(0);
     }
     if (drawer) setListOpen(false);
+  };
+
+  const days = windows?.days(k) ?? [];
+  const goTo = (date: Date) => {
+    if (windows) setK(windows.indexOf(date));
+    setJump({ date, seq: Date.now() });
   };
 
   return (
     <div className="app">
       <PatientHeader patient={patient} doctorName={doctorName} sample={sample} failed={failed}
-        listOpen={listOpen} onOpenList={() => setListOpen(true)} onSignOut={onSignOut} />
+        listOpen={listOpen} onOpenList={() => setListOpen(true)} onSignOut={onSignOut}
+        period={windows ? { days, k, max: windows.max, onChange: (next) => { setK(next); setJump(null); } } : undefined} />
       <main className={`cols ${listOpen ? '' : 'collapsed'}`}>
         <PatientList patients={patients} selectedId={patient.id} today={today} onSelect={selectPatient} onClose={() => setListOpen(false)} />
         {/* key: 환자를 바꾸면 칸마다 주 위치·고른 날짜를 처음으로 */}
         <PrevisitPanel key={`previsit-${patient.id}`} patient={patient} doctorName={doctorName}
-          onJump={(date) => setJump({ date, seq: Date.now() })} />
-        <PainPanel key={`pain-${patient.id}`} records={patient.pains} jump={jump} />
-        <SymptomPanel key={`symptom-${patient.id}`} records={patient.symptoms} jump={jump} />
+          onJump={goTo} />
+        <PainPanel key={`pain-${patient.id}`} records={patient.pains} days={days} jump={jump} />
+        <SymptomPanel key={`symptom-${patient.id}`} records={patient.symptoms} days={days} jump={jump} />
       </main>
       <div className="scrim" onClick={() => setListOpen(false)} />
     </div>
