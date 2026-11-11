@@ -188,7 +188,7 @@ function BodyMap({ records }: { records: PainRecord[] }) {
         ))}
       </div>
       <div className="scale"><span>0</span><span className="bar" /><span>10</span></div>
-      <p className="chart-note">원 안 숫자 = 기록 횟수, 원 색 = 그 부위의 가장 높은 먹기 전 점수</p>
+      <p className="chart-note">원 색 = 그 부위의 가장 높은 통증 발생 당시 점수</p>
     </>
   );
 }
@@ -200,10 +200,10 @@ function PainRow({ record: r }: { record: PainRecord }) {
       <div className="when">{mdw(r.recordedDate)}<small>{hm(r.recordedDate)}</small></div>
       <div className="parts">{r.location.map((l, i) => <span key={i} className="badge">{locationName(l.bodyPart, l.bodySide)}</span>)}</div>
       <div className="score">
-        <span className="dot" style={{ background: scoreColor(r.painBefore) }} title="먹기 전">{r.painBefore}</span>→
+        <span className="dot" style={{ background: scoreColor(r.painBefore) }} title="통증 발생 당시">{r.painBefore}</span>→
         {r.painAfter === undefined ? <span className="muted" style={{ fontSize: 13 }}>기록 없음</span> : (
           <>
-            <span className="dot" style={{ background: scoreColor(r.painAfter) }} title="먹고 1시간 뒤">{r.painAfter}</span>
+            <span className="dot" style={{ background: scoreColor(r.painAfter) }} title="1시간 뒤">{r.painAfter}</span>
             <span className={`delta ${change! < 0 ? 'down' : change! > 0 ? 'up' : 'muted'}`}>{change! > 0 ? '+' : ''}{change}</span>
           </>
         )}

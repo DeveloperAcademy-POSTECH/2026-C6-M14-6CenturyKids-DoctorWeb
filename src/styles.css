@@ -7,7 +7,7 @@ img { max-width: 100%; }
 [hidden] { display: none !important; }
 :root {
   --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F8F7F8; --line: #E0DFE0; --track: #E9E8E9;
-  --fg: #2B282B; --fg-sub: #686468; --fg-faint: #9C989C;
+  --fg: #2B282B; --fg-sub: #686468; --fg-faint: #7A757A;
   --lime: #C5F276; --lime-light: #DDF7AE; --lime-ink: #4A6610;
   --down: #5B9A1F; --up: #B85424;
   --alert: #C9372C; --alert-bg: #FCEBE9;
@@ -107,9 +107,10 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 .letter-body .from { text-align: right; }
 .letter-body p { margin: 0; font-size: 16px; line-height: 1.75; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; }
 .letter-body p.empty { color: var(--fg-faint); }
-.attach { margin: 0 12px 12px; display: flex; align-items: center; gap: 8px; width: calc(100% - 24px); min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: none; cursor: pointer; text-align: left; font-size: 14px; }
+.attach { margin: 0 12px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; width: calc(100% - 24px); min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: none; cursor: pointer; text-align: left; font-size: 14px; }
 .attach:hover { background: var(--surface-2); }
-.attach b { font-weight: 600; white-space: nowrap; }
+.attach b { font-weight: 600; }
+.attach > span:first-child { white-space: nowrap; }
 .attach .go { margin-left: auto; color: var(--fg-sub); }
 .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 1px 7px; border-radius: 999px; background: var(--track); color: var(--fg); white-space: nowrap; }
 
@@ -123,7 +124,7 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .sym-grid thead th.off b, .sym-grid thead th.off { color: var(--fg-faint); }
 .sym-grid thead th.focus { background: var(--lime-light); color: #2B282B; }
 .sym-grid thead th.focus b { color: #2B282B; }
-.sym-grid tbody th { text-align: left; font-weight: 500; padding-left: 10px; word-break: keep-all; }
+.sym-grid tbody th { text-align: left; font-weight: 500; font-size: 13px; padding-left: 8px; word-break: keep-all; }
 .mark { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; }
 .mark.present { background: var(--fg-sub); }
 .mark-btn { border: 0; background: none; padding: 0; width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: 50%; cursor: pointer; vertical-align: middle; }
@@ -190,7 +191,7 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .prec li { display: grid; grid-template-columns: 82px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); }
 .prec li:first-child { border-top: 0; }
 .prec .when { font-size: 14px; line-height: 1.35; }
-.prec .when small { display: block; color: var(--fg-sub); }
+.prec .when small { display: block; font-size: 13px; color: var(--fg-sub); }
 .prec .parts { display: flex; flex-wrap: wrap; gap: 4px; }
 .prec .score { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 15px; }
 .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; color: #2B282B; }
