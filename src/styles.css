@@ -9,7 +9,7 @@ img { max-width: 100%; }
   --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F8F7F8; --line: #E0DFE0; --track: #E9E8E9;
   --fg: #2B282B; --fg-sub: #686468; --fg-faint: #9C989C;
   --lime: #C5F276; --lime-light: #DDF7AE; --lime-ink: #4A6610;
-  --orange: #E9804E; --orange-light: #F7C6AC;
+  --down: #5B9A1F; --up: #B85424;
   --alert: #C9372C; --alert-bg: #FCEBE9;
   --s0: #C5F276; --s25: #F4E174; --s50: #F4B25A; --s75: #E9804E; --s100: #E14D45;
   --m-calm: #D7F79D; --m-worried: #F4E174; --m-anxious: #FCAB73; --m-notready: #F47468; --m-unsure: #C2C0C2;
@@ -20,12 +20,12 @@ img { max-width: 100%; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #141314; --surface: #1D1C1D; --surface-2: #252425; --line: #343234; --track: #343234;
   --fg: #EEECEE; --fg-sub: #AAA6AA; --fg-faint: #767276;
-  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D;
+  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --down: #C5F276; --up: #E9804E;
   --plate: #E9E8E9; --plate-line: #343234; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #141314; --surface: #1D1C1D; --surface-2: #252425; --line: #343234; --track: #343234;
   --fg: #EEECEE; --fg-sub: #AAA6AA; --fg-faint: #767276;
-  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D;
+  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --down: #C5F276; --up: #E9804E;
   --plate: #E9E8E9; --plate-line: #343234; color-scheme: dark }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -194,7 +194,7 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; color: #2B282B; }
 .prec .delta { font-size: 13px; min-width: 30px; text-align: right; }
 .down { color: var(--lime-ink); }
-.up { color: var(--orange); }
+.up { color: var(--up); }
 .muted { color: var(--fg-faint); }
 h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .empty-note { color: var(--fg-faint); font-size: 15px; padding: 24px 0; text-align: center; }

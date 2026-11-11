@@ -66,9 +66,9 @@ export default function PainPanel({ records, jump }: Props) {
             <PainChart days={days} byDay={byDay} picked={pickedDay}
               onPick={(day) => setPickedDay(pickedDay === day ? null : day)} />
             <div className="chart-note">
-              <span><i style={{ background: 'var(--lime)' }} />통증감소</span>
-              <span><i style={{ background: 'var(--orange)' }} />통증증가</span>
-              <span><i style={{ background: 'var(--surface)', border: '3px solid var(--lime)', height: 4, width: 12 }} />통증 발생 당시만 기록</span>
+              <span><i style={{ background: 'var(--down)' }} />통증감소</span>
+              <span><i style={{ background: 'var(--up)' }} />통증증가</span>
+              <span><i style={{ background: 'var(--surface)', border: '3px solid var(--fg-sub)', height: 4, width: 12 }} />통증 발생 당시만 기록</span>
             </div>
             <div className="scope">
               {pickedDay && scoped.length
@@ -123,17 +123,17 @@ function PainChart({ days, byDay, picked, onPick }: {
           const top = y(Math.max(before, after)), bottom = y(Math.min(before, after));
           marks = (
             <>
-              <rect x={cx - 9} y={top} width={18} height={Math.max(0, bottom - top)} fill={up ? 'var(--orange)' : 'var(--lime)'} />
+              <rect x={cx - 9} y={top} width={18} height={Math.max(0, bottom - top)} fill={up ? 'var(--up)' : 'var(--down)'} />
               {[before, after].map((v, j) => (
                 <g key={j}>
-                  <circle cx={cx} cy={y(v)} r={10} fill={up ? 'var(--orange-light)' : 'var(--lime-light)'} />
+                  <circle cx={cx} cy={y(v)} r={10} fill={up ? 'var(--up)' : 'var(--down)'} />
                   <circle cx={cx} cy={y(v)} r={5} fill="var(--surface)" />
                 </g>
               ))}
             </>
           );
         } else if (rs.length) {
-          marks = <circle cx={cx} cy={y(avg(rs.map((r) => r.painBefore)))} r={8} fill="var(--surface)" stroke="var(--lime)" strokeWidth={4} />;
+          marks = <circle cx={cx} cy={y(avg(rs.map((r) => r.painBefore)))} r={8} fill="var(--surface)" stroke="var(--fg-sub)" strokeWidth={4} />;
         } else {
           marks = <rect x={cx - 8} y={y(0) - 18} width={16} height={4} rx={2} fill="var(--track)" />;
         }
