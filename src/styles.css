@@ -53,8 +53,8 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 .sample { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--fg-sub); border: 1px dashed var(--fg-faint); border-radius: 4px; padding: 1px 6px; }
 
 /* 3단 */
-.cols { min-height: 0; display: grid; grid-template-columns: 216px minmax(240px, 1.05fr) minmax(320px, 1.355fr) minmax(0, 1.395fr); gap: 12px; }
-.cols.collapsed { grid-template-columns: minmax(260px, 1.05fr) minmax(340px, 1.355fr) minmax(0, 1.395fr); }
+.cols { min-height: 0; display: grid; grid-template-columns: 216px minmax(240px, 1.05fr) minmax(320px, 1.351fr) minmax(0, 1.399fr); gap: 12px; }
+.cols.collapsed { grid-template-columns: minmax(260px, 1.05fr) minmax(340px, 1.351fr) minmax(0, 1.399fr); }
 .cols.collapsed .plist { display: none; }
 
 /* 환자 목록 */
@@ -201,7 +201,7 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 
 .scrim { display: none; position: fixed; inset: 0; z-index: 15; background: rgba(20, 19, 20, 0.32); }
 @media (max-width: 1399px) {
-  .cols, .cols.collapsed { grid-template-columns: minmax(260px, 1.05fr) minmax(300px, 1.355fr) minmax(0, 1.395fr); }
+  .cols, .cols.collapsed { grid-template-columns: minmax(260px, 1.05fr) minmax(300px, 1.351fr) minmax(0, 1.399fr); }
   .plist { position: fixed; z-index: 20; left: max(12px, env(safe-area-inset-left, 0px)); top: max(12px, env(safe-area-inset-top, 0px)); bottom: max(12px, env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100vw - 24px)); box-shadow: 0 12px 40px rgba(20, 19, 20, 0.28); }
   .cols:not(.collapsed) + .scrim { display: block; }
 }
