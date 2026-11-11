@@ -125,11 +125,11 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .sym-grid thead th.focus b { color: #2B282B; }
 .sym-grid tbody th { text-align: left; font-weight: 500; padding-left: 10px; word-break: keep-all; }
 .mark { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; }
-.mark.present { background: var(--fg); }
+.mark.present { background: var(--fg-sub); }
 .mark-btn { border: 0; background: none; padding: 0; width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: 50%; cursor: pointer; vertical-align: middle; }
 .mark-btn:active { background: var(--track); }
 .entry.target { outline: 2px solid var(--lime-ink); outline-offset: 6px; border-radius: 4px; }
-.mark.flag { background: var(--alert); box-shadow: 0 0 0 3px var(--alert-bg); }
+.mark.flag { width: 18px; height: 18px; display: inline-grid; place-items: center; background: var(--alert); color: #FFFFFF; font-size: 13px; font-weight: 700; font-style: normal; line-height: 1; box-shadow: 0 0 0 3px var(--alert-bg); }
 .mark.absent { width: 8px; height: 2px; border-radius: 1px; background: var(--fg-faint); }
 .mark.unknown { width: auto; height: auto; background: none; color: var(--fg-sub); font-weight: 600; font-size: 13px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--fg-sub); align-items: center; }

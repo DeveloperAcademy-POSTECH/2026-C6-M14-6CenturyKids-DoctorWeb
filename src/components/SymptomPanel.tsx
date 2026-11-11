@@ -76,7 +76,7 @@ function WeekGrid({ days, byDay, rows, focusDay, onPick }: {
     if (!entries.length) return null;
     const go = (cls: string, label: string) => (
       <button type="button" className="mark-btn" aria-label={`${mdw(date)} ${SYMPTOM_NAMES[type]} ${label} 기록으로 가기`} onClick={() => onPick(day, type)}>
-        <span className={`mark ${cls}`} />
+        <span className={`mark ${cls}`}>{cls === 'flag' ? '!' : null}</span>
       </button>
     );
     if (entries.some(isReview)) return go('flag', '검토 필요');
@@ -115,7 +115,7 @@ function WeekGrid({ days, byDay, rows, focusDay, onPick }: {
       </div>
       <div className="legend">
         <span><i className="mark present" />있음</span>
-        <span><i className="mark flag" />검토 필요</span>
+        <span><i className="mark flag">!</i>검토 필요</span>
         <span><i className="mark absent" />없음</span>
         <span><b className="mark unknown">?</b>모름</span>
         <span>빈 칸: 그날 기록 없음 · 묻지 못함</span>
