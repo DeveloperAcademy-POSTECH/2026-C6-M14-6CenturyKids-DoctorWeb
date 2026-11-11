@@ -35,7 +35,7 @@ export default function LoginPage({ message, onSignedIn, onSample }: Props) {
   return (
     <div className="login">
       <form className="login-card" onSubmit={submit} noValidate>
-        <h1>ToDoc 환자 기록</h1>
+        <h1>SocDoc 환자 기록</h1>
         <p className="sub">의사 선생님 계정으로 로그인해 주세요.</p>
         {supabase ? (
           <>
