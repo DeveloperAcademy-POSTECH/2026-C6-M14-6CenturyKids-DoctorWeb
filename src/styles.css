@@ -161,10 +161,10 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .day.none h3 { color: var(--fg-faint); font-weight: 500; }
 
 /* 통증 기록 */
-.headline { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.headline { display: flex; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; }
+.headline .change { margin-left: auto; display: flex; align-items: baseline; gap: 6px; }
 .headline strong { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
 .headline .arrow { font-weight: 700; }
-.headline .sub { width: 100%; font-size: 14px; color: var(--fg-sub); }
 .chart { width: 100%; height: auto; display: block; }
 .chart text { fill: var(--fg-sub); font-family: var(--mono); font-size: 14px; }
 .chart .col { cursor: pointer; }
@@ -173,7 +173,7 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .chart-note { font-size: 13px; color: var(--fg-sub); display: flex; gap: 12px; flex-wrap: wrap; }
 .chart-note i { display: inline-block; width: 18px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 4px; }
 .scope { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; color: var(--fg-sub); }
-.scope b { color: var(--fg); white-space: nowrap; }
+.scope h4 { color: var(--fg); }
 .scope button { margin-left: auto; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
 .pain .panel-body { gap: 10px; }
 .body-map { position: relative; width: 75%; max-width: 100%; margin-inline: auto; aspect-ratio: 1 / 0.94; overflow: hidden; background: var(--plate); border: 1px solid var(--plate-line); border-radius: 10px; }

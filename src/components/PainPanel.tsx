@@ -53,25 +53,27 @@ export default function PainPanel({ records, jump }: Props) {
     <section className="panel pain" aria-labelledby="h-pain">
       <div className="panel-head">
         <h2 id="h-pain">통증 기록</h2>
-        <span className="hint">먹기 전 → 먹고 1시간 뒤</span>
+        <span className="hint">통증 발생 당시 → 1시간 뒤 통증 변화 비교</span>
         {records.length > 0 && <span className="range">전체 {records.length}건</span>}
       </div>
       <div className="panel-body" ref={container}>
         {!windows ? <p className="empty-note">아직 통증 기록이 없어요</p> : (
           <>
-            <div className="headline">{headline}</div>
+            <div className="headline">
+              <h4>통증 발생 당시와 1시간 뒤 통증 변화 그래프</h4>
+              <span className="change">{headline}</span>
+            </div>
             <PainChart days={days} byDay={byDay} picked={pickedDay}
               onPick={(day) => setPickedDay(pickedDay === day ? null : day)} />
             <div className="chart-note">
-              <span><i style={{ background: 'var(--lime)' }} />줄었음</span>
-              <span><i style={{ background: 'var(--orange)' }} />늘었음</span>
-              <span><i style={{ background: 'var(--surface)', border: '3px solid var(--lime)', height: 4, width: 12 }} />먹기 전만 기록</span>
+              <span><i style={{ background: 'var(--lime)' }} />통증감소</span>
+              <span><i style={{ background: 'var(--orange)' }} />통증증가</span>
+              <span><i style={{ background: 'var(--surface)', border: '3px solid var(--lime)', height: 4, width: 12 }} />통증 발생 당시만 기록</span>
             </div>
             <div className="scope">
-              <h4>통증 부위</h4>
               {pickedDay && scoped.length
-                ? <><span><b>{shortMdw(scoped[0].recordedDate)}</b>만</span><button type="button" onClick={() => setPickedDay(null)}>7일 전체</button></>
-                : <span>날짜를 누르면 그날만 봐요</span>}
+                ? <><h4>{shortMdw(scoped[0].recordedDate)}의 부위 별 기록 횟수</h4><button type="button" onClick={() => setPickedDay(null)}>7일 전체</button></>
+                : <><h4>통증 부위 별 기록 횟수</h4><span>상단의 그래프를 클릭하면 그 날의 통증 부위와 기록 횟수를 확인할 수 있어요</span></>}
             </div>
             {scoped.length ? <BodyMap records={scoped} /> : <p className="empty-note">기록이 없어요</p>}
             <h4>기록 {scoped.length}건</h4>
