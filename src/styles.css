@@ -134,6 +134,8 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .mark.unknown { width: auto; height: auto; background: none; color: var(--fg-sub); font-weight: 600; font-size: 13px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--fg-sub); align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
+.grid-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.grid-title span { margin-left: auto; font-size: 14px; color: var(--fg-sub); }
 
 .day { border: 1px solid var(--line); border-radius: 10px; scroll-margin-top: 12px; }
 .day.focus { border-color: var(--lime-ink); box-shadow: 0 0 0 3px var(--lime-light); }
