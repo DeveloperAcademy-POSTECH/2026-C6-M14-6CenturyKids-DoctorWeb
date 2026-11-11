@@ -46,7 +46,7 @@ export default function SymptomPanel({ records, jump }: Props) {
       <div className="panel-head">
         <h2 id="h-symptom">증상 기록</h2>
         <span className="hint">음성 대화를 통해 하루동안 있었던 증상</span>
-        {records.length > 0 && <span className="range">전체 {records.length}일 기록</span>}
+        {records.length > 0 && <span className="range">{records.length}일</span>}
       </div>
       <div className="panel-body" ref={container}>
         {!windows && <p className="empty-note">아직 증상 기록이 없어요</p>}

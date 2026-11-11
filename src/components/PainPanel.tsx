@@ -54,7 +54,7 @@ export default function PainPanel({ records, jump }: Props) {
       <div className="panel-head">
         <h2 id="h-pain">통증 기록</h2>
         <span className="hint">통증 발생 당시 → 1시간 뒤 통증 변화 비교</span>
-        {records.length > 0 && <span className="range">전체 {records.length}건</span>}
+        {records.length > 0 && <span className="range">{records.length}건</span>}
       </div>
       <div className="panel-body" ref={container}>
         {!windows ? <p className="empty-note">아직 통증 기록이 없어요</p> : (
