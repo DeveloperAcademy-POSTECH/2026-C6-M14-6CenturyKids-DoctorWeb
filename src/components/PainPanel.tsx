@@ -46,8 +46,9 @@ export default function PainPanel({ records, jump }: Props) {
       : diff < -0.05 ? <><strong>평균 {round1(-diff)}점 높아졌어요</strong><span className="arrow up">↑</span></>
       : <strong>평균 변화가 없어요</strong>;
   } else if (inWindow.length) {
-    headline = <strong>먹은 뒤 점수가 아직 없어요</strong>;
+    headline = <strong>1시간 뒤 점수가 아직 없어요</strong>;
   }
+  const peak = inWindow.length ? Math.max(...inWindow.map((r) => Math.max(r.painBefore, r.painAfter ?? 0))) : undefined;
 
   return (
     <section className="panel pain" aria-labelledby="h-pain">
@@ -61,7 +62,7 @@ export default function PainPanel({ records, jump }: Props) {
           <>
             <div className="headline">
               <h4>통증 발생 당시와 1시간 뒤 통증 변화 그래프</h4>
-              <span className="change">{headline}</span>
+              <span className="change">{headline}{peak !== undefined && <span className="peak">· 이 기간 최고 <b>{peak}</b>점</span>}</span>
             </div>
             <PainChart days={days} byDay={byDay} picked={pickedDay}
               onPick={(day) => setPickedDay(pickedDay === day ? null : day)} />
