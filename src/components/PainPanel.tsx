@@ -71,8 +71,8 @@ export default function PainPanel({ records, days, jump }: Props) {
             <PainChart days={days} byDay={byDay} picked={pickedDay}
               onPick={(day) => setPickedDay(pickedDay === day ? null : day)} />
             <div className="chart-note">
-              <span><i style={{ background: 'var(--down)' }} />통증감소</span>
-              <span><i style={{ background: 'var(--up)' }} />통증증가</span>
+              <span><ArrowKey up={false} />통증감소</span>
+              <span><ArrowKey up />통증증가</span>
               <span><i style={{ background: 'var(--surface)', border: '3px solid var(--fg-sub)', height: 4, width: 12 }} />통증 발생 당시만 기록</span>
             </div>
             <div className="scope">
@@ -120,17 +120,19 @@ function PainChart({ days, byDay, picked, onPick }: {
         let marks: JSX.Element;
         if (pairs.length) {
           const before = avg(pairs.map((r) => r.painBefore)), after = avg(pairs.map((r) => r.painAfter!));
-          const up = after > before;
+          const up = after > before, color = up ? 'var(--up)' : 'var(--down)';
           const top = y(Math.max(before, after)), bottom = y(Math.min(before, after));
+          // 통증 발생 당시는 동그라미, 1시간 뒤는 바뀐 쪽을 향한 화살촉
+          const ya = y(after), d = up ? -1 : 1;
           marks = (
             <>
-              <rect x={cx - 9} y={top} width={18} height={Math.max(0, bottom - top)} fill={up ? 'var(--up)' : 'var(--down)'} />
-              {[before, after].map((v, j) => (
-                <g key={j}>
-                  <circle cx={cx} cy={y(v)} r={10} fill={up ? 'var(--up)' : 'var(--down)'} />
-                  <circle cx={cx} cy={y(v)} r={5} fill="var(--surface)" />
-                </g>
-              ))}
+              <rect x={cx - 9} y={top} width={18} height={Math.max(0, bottom - top)} fill={color} />
+              <circle cx={cx} cy={y(before)} r={10} fill={color} />
+              <circle cx={cx} cy={y(before)} r={5} fill="var(--surface)" />
+              {after !== before && (
+                <path d={`M ${cx - 10} ${ya - 6 * d} L ${cx + 10} ${ya - 6 * d} L ${cx} ${ya + 9 * d} Z`}
+                  fill={color} stroke={color} strokeWidth={2} strokeLinejoin="round" />
+              )}
             </>
           );
         } else if (rs.length) {
@@ -151,6 +153,17 @@ function PainChart({ days, byDay, picked, onPick }: {
           </g>
         );
       })}
+    </svg>
+  );
+}
+
+/** 범례: 막대 + 바뀐 쪽을 향한 화살촉 */
+function ArrowKey({ up }: { up: boolean }) {
+  const color = up ? 'var(--up)' : 'var(--down)';
+  return (
+    <svg className="key" width="12" height="16" viewBox="0 0 12 16" aria-hidden="true">
+      <rect x="4" y={up ? 7 : 0} width="4" height="9" fill={color} />
+      <path d={up ? 'M 0 8 L 12 8 L 6 1 Z' : 'M 0 8 L 12 8 L 6 15 Z'} fill={color} />
     </svg>
   );
 }
