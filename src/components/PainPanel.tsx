@@ -113,7 +113,13 @@ function PainChart({ days, byDay, picked, onPick }: {
           <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--line)" />
           <text x={L - 8} y={y(v) + 4} textAnchor="end">{v}</text>
         </g>
-      ) : <line key={v} x1={L - 12} x2={L - 6} y1={y(v)} y2={y(v)} stroke="var(--line)" />)}
+      ) : (
+        // 0·5·10 밖 점수는 옅은 점선
+        <g key={v}>
+          <line x1={L - 12} x2={L - 6} y1={y(v)} y2={y(v)} stroke="var(--line)" />
+          <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeDasharray="2 4" />
+        </g>
+      ))}
       {days.map((t, i) => {
         const day = dayKey(t), rs = byDay.get(day) ?? [], cx = L + cw * (i + 0.5), selected = picked === day;
         const pairs = rs.filter((r) => r.painAfter !== undefined);
