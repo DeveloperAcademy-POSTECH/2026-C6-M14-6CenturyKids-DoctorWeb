@@ -121,8 +121,10 @@ function PainChart({ days, byDay, picked, onPick }: {
         if (pairs.length) {
           const before = avg(pairs.map((r) => r.painBefore)), after = avg(pairs.map((r) => r.painAfter!));
           const up = after > before, color = up ? 'var(--up)' : 'var(--down)';
-          // 통증 발생 당시는 동그라미, 1시간 뒤는 바뀐 쪽을 향한 화살촉. 막대는 화살촉 밑변에서 끝나게
+          // 통증 발생 당시는 동그라미, 1시간 뒤는 바뀐 쪽을 향한 화살촉.
+          // 화살촉 무게중심 = 1시간 뒤 점수 (동그라미 가운데 = 발생 당시 점수와 같게), 막대는 화살촉 밑변에서 끝남
           const ya = y(after), d = up ? -1 : 1, base = ya - 6 * d;
+          const tri = (k: number) => `M ${cx - 11 * k} ${ya - 6 * d * k} L ${cx + 11 * k} ${ya - 6 * d * k} L ${cx} ${ya + 12 * d * k} Z`;
           const top = Math.min(y(before), base), bottom = Math.max(y(before), base);
           marks = (
             <>
@@ -130,8 +132,10 @@ function PainChart({ days, byDay, picked, onPick }: {
               <circle cx={cx} cy={y(before)} r={10} fill={color} />
               <circle cx={cx} cy={y(before)} r={5} fill="var(--surface)" />
               {after !== before && (
-                <path d={`M ${cx - 10} ${base} L ${cx + 10} ${base} L ${cx} ${ya + 9 * d} Z`}
-                  fill={color} stroke={color} strokeWidth={2} strokeLinejoin="round" />
+                <>
+                  <path d={tri(1)} fill={color} stroke={color} strokeWidth={2} strokeLinejoin="round" />
+                  <path d={tri(0.5)} fill="var(--surface)" />
+                </>
               )}
             </>
           );
@@ -161,9 +165,12 @@ function PainChart({ days, byDay, picked, onPick }: {
 function ArrowKey({ up }: { up: boolean }) {
   const color = up ? 'var(--up)' : 'var(--down)';
   return (
-    <svg className="key" width="12" height="16" viewBox="0 0 12 16" aria-hidden="true">
-      <rect x="4" y={up ? 7 : 0} width="4" height="9" fill={color} />
-      <path d={up ? 'M 0 8 L 12 8 L 6 1 Z' : 'M 0 8 L 12 8 L 6 15 Z'} fill={color} />
+    <svg className="key" width="14" height="18" viewBox="0 0 14 18" aria-hidden="true">
+      <g transform={up ? 'rotate(180 7 9)' : undefined}>
+        <rect x="5" y="0" width="4" height="8" fill={color} />
+        <path d="M 1 7 L 13 7 L 7 17 Z" fill={color} stroke={color} strokeWidth="1" strokeLinejoin="round" />
+        <path d="M 4.5 8.7 L 9.5 8.7 L 7 12.8 Z" fill="var(--surface)" />
+      </g>
     </svg>
   );
 }
