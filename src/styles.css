@@ -165,10 +165,10 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 
 /* 통증 기록 */
 .headline { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.headline .change { display: flex; align-items: baseline; gap: 6px; }
-.headline strong { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.headline .change { display: flex; align-items: baseline; gap: 6px; font-size: 14px; }
+.headline strong { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
 .headline .arrow { font-weight: 700; }
-.headline .peak { font-size: 15px; color: var(--fg-sub); }
+.headline .peak { font-size: 13px; color: var(--fg-sub); }
 .headline .peak b { color: var(--fg); font-family: var(--mono); }
 .chart { width: 100%; height: auto; display: block; }
 .chart text { fill: var(--fg-sub); font-family: var(--mono); font-size: 14px; }
