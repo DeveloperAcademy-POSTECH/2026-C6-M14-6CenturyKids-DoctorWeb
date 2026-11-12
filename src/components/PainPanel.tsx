@@ -121,16 +121,16 @@ function PainChart({ days, byDay, picked, onPick }: {
         if (pairs.length) {
           const before = avg(pairs.map((r) => r.painBefore)), after = avg(pairs.map((r) => r.painAfter!));
           const up = after > before, color = up ? 'var(--up)' : 'var(--down)';
-          const top = y(Math.max(before, after)), bottom = y(Math.min(before, after));
-          // 통증 발생 당시는 동그라미, 1시간 뒤는 바뀐 쪽을 향한 화살촉
-          const ya = y(after), d = up ? -1 : 1;
+          // 통증 발생 당시는 동그라미, 1시간 뒤는 바뀐 쪽을 향한 화살촉. 막대는 화살촉 밑변에서 끝나게
+          const ya = y(after), d = up ? -1 : 1, base = ya - 6 * d;
+          const top = Math.min(y(before), base), bottom = Math.max(y(before), base);
           marks = (
             <>
               <rect x={cx - 9} y={top} width={18} height={Math.max(0, bottom - top)} fill={color} />
               <circle cx={cx} cy={y(before)} r={10} fill={color} />
               <circle cx={cx} cy={y(before)} r={5} fill="var(--surface)" />
               {after !== before && (
-                <path d={`M ${cx - 10} ${ya - 6 * d} L ${cx + 10} ${ya - 6 * d} L ${cx} ${ya + 9 * d} Z`}
+                <path d={`M ${cx - 10} ${base} L ${cx + 10} ${base} L ${cx} ${ya + 9 * d} Z`}
                   fill={color} stroke={color} strokeWidth={2} strokeLinejoin="round" />
               )}
             </>
