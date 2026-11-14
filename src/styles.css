@@ -9,7 +9,7 @@ img { max-width: 100%; }
   --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F8F7F8; --line: #E0DFE0; --track: #E9E8E9;
   --fg: #2B282B; --fg-sub: #686468; --fg-faint: #7A757A;
   --lime: #C5F276; --lime-light: #DDF7AE; --lime-ink: #4A6610;
-  --down: #5B9A1F; --up: #B85424;
+  --up: #B85424;
   --alert: #C9372C; --alert-bg: #FCEBE9;
   --s0: #C5F276; --s25: #F4E174; --s50: #F4B25A; --s75: #E9804E; --s100: #E14D45;
   --m-calm: #D7F79D; --m-worried: #F4E174; --m-anxious: #FCAB73; --m-notready: #F47468; --m-unsure: #C2C0C2;
@@ -20,12 +20,12 @@ img { max-width: 100%; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #141314; --surface: #1D1C1D; --surface-2: #252425; --line: #343234; --track: #343234;
   --fg: #EEECEE; --fg-sub: #AAA6AA; --fg-faint: #767276;
-  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --down: #C5F276; --up: #E9804E;
+  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --up: #E9804E;
   --plate: #E9E8E9; --plate-line: #343234; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #141314; --surface: #1D1C1D; --surface-2: #252425; --line: #343234; --track: #343234;
   --fg: #EEECEE; --fg-sub: #AAA6AA; --fg-faint: #767276;
-  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --down: #C5F276; --up: #E9804E;
+  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --up: #E9804E;
   --plate: #E9E8E9; --plate-line: #343234; color-scheme: dark }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -164,20 +164,7 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .day.none h3 { color: var(--fg-faint); font-weight: 500; }
 
 /* 통증 기록 */
-.headline { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.headline .change { display: flex; align-items: baseline; gap: 6px; font-size: 14px; }
-.headline strong { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
-.headline .arrow { font-weight: 700; }
-.headline .peak { font-size: 13px; color: var(--fg-sub); }
-.headline .peak b { color: var(--fg); font-family: var(--mono); }
-.chart { width: 100%; height: auto; display: block; }
-.chart text { fill: var(--fg-sub); font-family: var(--mono); font-size: 14px; }
-.chart .col { cursor: pointer; }
-.chart .col:focus { outline: none; }
-.chart .col:focus-visible .hit { stroke: var(--lime-ink); stroke-width: 2; }
 .chart-note { font-size: 13px; color: var(--fg-sub); display: flex; gap: 12px; flex-wrap: wrap; }
-.chart-note .key { vertical-align: middle; margin-right: 4px; }
-.chart-note i { display: inline-block; width: 18px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 4px; }
 .scope { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; color: var(--fg-sub); }
 .scope h4 { color: var(--fg); }
 .scope button { margin-left: auto; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 8px 12px; font-size: 14px; cursor: pointer; }

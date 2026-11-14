@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Jump } from './Workspace.tsx';
 import { BODY_REGIONS, locationName, scoreColor } from '../domain/labels.ts';
 import type { PainRecord } from '../domain/types.ts';
-import { dayKey, hm, mdw, shortMdw, weekday } from '../lib/dates.ts';
+import { dayKey, hm, mdw, shortMdw } from '../lib/dates.ts';
 import { useScrollTo } from '../lib/useScrollTo.ts';
 import bodyImage from '../assets/pain-body.jpg';
 
@@ -13,10 +13,7 @@ interface Props {
   jump: Jump | null;
 }
 
-const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-const round1 = (v: number) => String(Math.round(v * 10) / 10);
-
-/** 통증 기록: 앱 주 그래프 + 몸 그림 부위 + 기록 목록. 날짜를 누르면 그날만 */
+/** 통증 기록: 몸 그림 부위 + 기록 목록. 진료 전 기록에서 날짜로 오면 그날만 */
 export default function PainPanel({ records, days, jump }: Props) {
   const [pickedDay, setPickedDay] = useState<string | null>(null);
   const { container, toTop } = useScrollTo<HTMLDivElement>();
@@ -41,18 +38,6 @@ export default function PainPanel({ records, days, jump }: Props) {
 
   const inWindow = days.flatMap((t) => byDay.get(dayKey(t)) ?? []);
   const scoped = pickedDay ? byDay.get(pickedDay) ?? [] : inWindow;
-  const pairs = inWindow.filter((r) => r.painAfter !== undefined);
-
-  let headline = <strong>이 기간 통증 기록이 없어요</strong>;
-  if (pairs.length) {
-    const diff = avg(pairs.map((r) => r.painBefore)) - avg(pairs.map((r) => r.painAfter!));
-    headline = diff > 0.05 ? <><strong>평균 {round1(diff)}점 낮아졌어요</strong><span className="arrow down">↓</span></>
-      : diff < -0.05 ? <><strong>평균 {round1(-diff)}점 높아졌어요</strong><span className="arrow up">↑</span></>
-      : <strong>평균 변화가 없어요</strong>;
-  } else if (inWindow.length) {
-    headline = <strong>1시간 뒤 점수가 아직 없어요</strong>;
-  }
-  const peak = inWindow.length ? Math.max(...inWindow.map((r) => Math.max(r.painBefore, r.painAfter ?? 0))) : undefined;
 
   return (
     <section className="panel pain" aria-labelledby="h-pain">
@@ -64,21 +49,10 @@ export default function PainPanel({ records, days, jump }: Props) {
       <div className="panel-body" ref={container}>
         {!records.length ? <p className="empty-note">아직 통증 기록이 없어요</p> : (
           <>
-            <div className="headline">
-              <h4>통증 발생 당시와 1시간 뒤 통증 변화 그래프</h4>
-              <span className="change">{headline}{peak !== undefined && <span className="peak">· 이 기간 최고 <b>{peak}</b>점</span>}</span>
-            </div>
-            <PainChart days={days} byDay={byDay} picked={pickedDay}
-              onPick={(day) => setPickedDay(pickedDay === day ? null : day)} />
-            <div className="chart-note">
-              <span><ArrowKey up={false} />통증감소</span>
-              <span><ArrowKey up />통증증가</span>
-              <span><i style={{ background: 'var(--surface)', border: '3px solid var(--fg-sub)', height: 4, width: 12 }} />통증 발생 당시만 기록</span>
-            </div>
             <div className="scope">
               {pickedDay && scoped.length
                 ? <><h4>{shortMdw(scoped[0].recordedDate)}의 부위 별 기록 횟수</h4><button type="button" onClick={() => setPickedDay(null)}>7일 전체</button></>
-                : <><h4>통증 부위 별 기록 횟수</h4><span>상단의 그래프를 클릭하면 그 날의 통증 부위와 기록 횟수를 확인할 수 있어요</span></>}
+                : <h4>통증 부위 별 기록 횟수</h4>}
             </div>
             {scoped.length ? <BodyMap records={scoped} /> : <p className="empty-note">기록이 없어요</p>}
             <h4>기록 {scoped.length}건</h4>
@@ -93,91 +67,6 @@ export default function PainPanel({ records, days, jump }: Props) {
         )}
       </div>
     </section>
-  );
-}
-
-function PainChart({ days, byDay, picked, onPick }: {
-  days: Date[];
-  byDay: Map<string, PainRecord[]>;
-  picked: string | null;
-  onPick: (day: string) => void;
-}) {
-  const W = 420, H = 248, L = 32, R = 8, T = 14, B = 56;
-  const ph = H - T - B, cw = (W - L - R) / 7;
-  const y = (v: number) => T + ((10 - v) / 10) * ph;
-
-  return (
-    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="7일 통증 점수 그래프">
-      {Array.from({ length: 11 }, (_, v) => v % 5 === 0 ? (
-        <g key={v}>
-          <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--line)" />
-          <text x={L - 8} y={y(v) + 4} textAnchor="end">{v}</text>
-        </g>
-      ) : (
-        // 0·5·10 밖 점수는 옅은 점선
-        <g key={v}>
-          <line x1={L - 12} x2={L - 6} y1={y(v)} y2={y(v)} stroke="var(--line)" />
-          <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeDasharray="2 4" />
-        </g>
-      ))}
-      {days.map((t, i) => {
-        const day = dayKey(t), rs = byDay.get(day) ?? [], cx = L + cw * (i + 0.5), selected = picked === day;
-        const pairs = rs.filter((r) => r.painAfter !== undefined);
-        let marks: JSX.Element;
-        if (pairs.length) {
-          const before = avg(pairs.map((r) => r.painBefore)), after = avg(pairs.map((r) => r.painAfter!));
-          const up = after > before, color = up ? 'var(--up)' : 'var(--down)';
-          // 통증 발생 당시는 동그라미, 1시간 뒤는 바뀐 쪽을 향한 화살촉.
-          // 화살촉 무게중심 = 1시간 뒤 점수 (동그라미 가운데 = 발생 당시 점수와 같게), 막대는 화살촉 밑변에서 끝남
-          const ya = y(after), d = up ? -1 : 1, base = ya - 6 * d;
-          const tri = (k: number) => `M ${cx - 11 * k} ${ya - 6 * d * k} L ${cx + 11 * k} ${ya - 6 * d * k} L ${cx} ${ya + 12 * d * k} Z`;
-          const top = Math.min(y(before), base), bottom = Math.max(y(before), base);
-          marks = (
-            <>
-              <rect x={cx - 9} y={top} width={18} height={Math.max(0, bottom - top)} fill={color} />
-              <circle cx={cx} cy={y(before)} r={10} fill={color} />
-              <circle cx={cx} cy={y(before)} r={5} fill="var(--surface)" />
-              {after !== before && (
-                <>
-                  <path d={tri(1)} fill={color} stroke={color} strokeWidth={2} strokeLinejoin="round" />
-                  <path d={tri(0.5)} fill="var(--surface)" />
-                </>
-              )}
-            </>
-          );
-        } else if (rs.length) {
-          marks = <circle cx={cx} cy={y(avg(rs.map((r) => r.painBefore)))} r={8} fill="var(--surface)" stroke="var(--fg-sub)" strokeWidth={4} />;
-        } else {
-          marks = <rect x={cx - 8} y={y(0) - 18} width={16} height={4} rx={2} fill="var(--track)" />;
-        }
-        const pick = () => rs.length && onPick(day);
-        return (
-          <g key={day} className="col" tabIndex={rs.length ? 0 : -1} role="button" aria-pressed={selected}
-            aria-label={`${mdw(t)} 통증 ${rs.length}건`} onClick={pick}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }}>
-            <rect className="hit" x={cx - cw / 2 + 2} y={T - 8} width={cw - 4} height={H - T + 4} rx={8}
-              fill={selected ? 'var(--surface-2)' : 'transparent'} stroke={selected ? 'var(--line)' : 'none'} />
-            {marks}
-            <text x={cx} y={H - 29} textAnchor="middle" style={{ fill: rs.length ? 'var(--fg)' : 'var(--fg-faint)' }}>{t.getMonth() + 1}/{t.getDate()}</text>
-            <text x={cx} y={H - 9} textAnchor="middle" style={{ fontFamily: 'var(--sans)' }}>{weekday(t)}</text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-/** 범례: 막대 + 바뀐 쪽을 향한 화살촉 */
-function ArrowKey({ up }: { up: boolean }) {
-  const color = up ? 'var(--up)' : 'var(--down)';
-  return (
-    <svg className="key" width="14" height="18" viewBox="0 0 14 18" aria-hidden="true">
-      <g transform={up ? 'rotate(180 7 9)' : undefined}>
-        <rect x="5" y="0" width="4" height="8" fill={color} />
-        <path d="M 1 7 L 13 7 L 7 17 Z" fill={color} stroke={color} strokeWidth="1" strokeLinejoin="round" />
-        <path d="M 4.5 8.7 L 9.5 8.7 L 7 12.8 Z" fill="var(--surface)" />
-      </g>
-    </svg>
   );
 }
 
