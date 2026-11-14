@@ -181,9 +181,11 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .prec .when { font-size: 14px; line-height: 1.35; }
 .prec .when small { display: block; font-size: 13px; color: var(--fg-sub); }
 .prec .parts { display: flex; flex-wrap: wrap; gap: 4px; }
-.prec .score { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 15px; }
+/* 줄마다 같은 칸: 발생 당시 · → · 1시간 뒤 · 변화. '기록 없음'은 뒤 두 칸을 씀 */
+.prec .score { display: grid; grid-template-columns: 22px auto 22px 34px; align-items: center; gap: 6px; font-family: var(--mono); font-size: 15px; }
+.prec .score .none { grid-column: 3 / span 2; font-family: var(--sans); font-size: 13px; white-space: nowrap; }
 .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; color: #2B282B; }
-.prec .delta { font-size: 13px; min-width: 30px; text-align: right; }
+.prec .delta { font-size: 13px; text-align: right; }
 .down { color: var(--lime-ink); }
 .up { color: var(--up); }
 .muted { color: var(--fg-faint); }

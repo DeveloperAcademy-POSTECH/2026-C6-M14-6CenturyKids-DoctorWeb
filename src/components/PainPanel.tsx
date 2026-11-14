@@ -116,7 +116,7 @@ function PainRow({ record: r }: { record: PainRecord }) {
       <div className="parts">{r.location.map((l, i) => <span key={i} className="badge">{locationName(l.bodyPart, l.bodySide)}</span>)}</div>
       <div className="score">
         <span className="dot" style={{ background: scoreColor(r.painBefore) }} title="통증 발생 당시">{r.painBefore}</span>→
-        {r.painAfter === undefined ? <span className="muted" style={{ fontSize: 13 }}>기록 없음</span> : (
+        {r.painAfter === undefined ? <span className="muted none">기록 없음</span> : (
           <>
             <span className="dot" style={{ background: scoreColor(r.painAfter) }} title="1시간 뒤">{r.painAfter}</span>
             <span className={`delta ${change! < 0 ? 'down' : change! > 0 ? 'up' : 'muted'}`}>{change! > 0 ? '+' : ''}{change}</span>
