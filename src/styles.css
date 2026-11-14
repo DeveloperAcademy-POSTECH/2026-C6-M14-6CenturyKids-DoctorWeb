@@ -137,6 +137,12 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .grid-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .grid-title span { margin-left: auto; font-size: 14px; color: var(--fg-sub); }
+.sym-filter { display: flex; flex-wrap: wrap; gap: 6px; }
+.sym-filter button { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--fg-sub); font-size: 14px; cursor: pointer; }
+.sym-filter button[aria-pressed="true"] { background: var(--fg); border-color: var(--fg); color: var(--surface); font-weight: 600; }
+.sym-filter button:disabled { opacity: 0.35; cursor: default; }
+.sym-filter .review-chip { color: var(--alert); border-color: var(--alert); }
+.sym-filter .review-chip[aria-pressed="true"] { background: var(--alert); border-color: var(--alert); color: #FFFFFF; }
 
 .day { border: 1px solid var(--line); border-radius: 10px; scroll-margin-top: 12px; }
 .day.focus { border-color: var(--lime-ink); box-shadow: 0 0 0 3px var(--lime-light); }
@@ -145,8 +151,6 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .day-head .time { font-size: 14px; color: var(--fg-sub); }
 .day-head .count { margin-left: auto; font-size: 14px; color: var(--fg-sub); }
 .day-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-.cond { margin: 0; padding: 8px 12px; background: var(--surface-2); border-radius: 8px; font-size: 16px; line-height: 1.7; }
-.cond small { display: block; font-size: 13px; color: var(--fg-sub); margin-bottom: 2px; letter-spacing: 0.02em; }
 .entry { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 4px 14px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .entry:first-of-type { border-top: 0; padding-top: 0; }
 .entry .type { font-weight: 600; font-size: 15px; }
@@ -159,9 +163,6 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .rest { font-size: 14px; color: var(--fg-sub); line-height: 1.7; }
 .rest b { color: var(--fg); font-weight: 600; margin-right: 4px; }
 .rest q { quotes: "“" "”"; }
-.day.none { border-style: dashed; }
-.day.none .day-head { border-bottom: 0; color: var(--fg-faint); }
-.day.none h3 { color: var(--fg-faint); font-weight: 500; }
 
 /* 통증 기록 */
 .chart-note { font-size: 13px; color: var(--fg-sub); display: flex; gap: 12px; flex-wrap: wrap; }
