@@ -160,6 +160,11 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .entry .text .label { color: var(--fg-sub); }
 .entry.flagged .type { color: var(--alert); }
 .review { font-size: 13px; font-weight: 600; color: var(--alert); background: var(--alert-bg); border-radius: 4px; padding: 1px 6px; }
+.cond-row { padding-top: 10px; border-top: 1px dashed var(--line); }
+.cond-row:first-child { border-top: 0; padding-top: 0; }
+.cond-row .when { font-size: 14px; color: var(--fg-sub); }
+.cond-row .when b { color: var(--fg); font-weight: 600; }
+.cond-row p { margin: 2px 0 0; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
 .rest { font-size: 14px; color: var(--fg-sub); line-height: 1.7; }
 .rest b { color: var(--fg); font-weight: 600; margin-right: 4px; }
 .rest q { quotes: "“" "”"; }
