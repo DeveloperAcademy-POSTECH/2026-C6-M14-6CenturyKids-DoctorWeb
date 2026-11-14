@@ -74,7 +74,7 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
       <main className={`cols ${listOpen ? '' : 'collapsed'}`}>
         <PatientList patients={patients} selectedId={patient.id} today={today} onSelect={selectPatient} onClose={() => setListOpen(false)} />
         {/* key: 환자를 바꾸면 칸마다 주 위치·고른 날짜를 처음으로 */}
-        <PrevisitPanel key={`previsit-${patient.id}`} patient={patient} doctorName={doctorName}
+        <PrevisitPanel key={`previsit-${patient.id}`} patient={patient} doctorName={doctorName} days={days}
           onJump={goTo} />
         <PainPanel key={`pain-${patient.id}`} records={patient.pains} days={days} jump={jump} />
         <SymptomPanel key={`symptom-${patient.id}`} records={patient.symptoms} days={days} jump={jump} />

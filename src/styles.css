@@ -9,7 +9,7 @@ img { max-width: 100%; }
   --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F8F7F8; --line: #E0DFE0; --track: #E9E8E9;
   --fg: #2B282B; --fg-sub: #686468; --fg-faint: #7A757A;
   --lime: #C5F276; --lime-light: #DDF7AE; --lime-ink: #4A6610;
-  --down: #5B9A1F; --up: #B85424;
+  --up: #B85424;
   --alert: #C9372C; --alert-bg: #FCEBE9;
   --s0: #C5F276; --s25: #F4E174; --s50: #F4B25A; --s75: #E9804E; --s100: #E14D45;
   --m-calm: #D7F79D; --m-worried: #F4E174; --m-anxious: #FCAB73; --m-notready: #F47468; --m-unsure: #C2C0C2;
@@ -20,12 +20,12 @@ img { max-width: 100%; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #141314; --surface: #1D1C1D; --surface-2: #252425; --line: #343234; --track: #343234;
   --fg: #EEECEE; --fg-sub: #AAA6AA; --fg-faint: #767276;
-  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --down: #C5F276; --up: #E9804E;
+  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --up: #E9804E;
   --plate: #E9E8E9; --plate-line: #343234; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #141314; --surface: #1D1C1D; --surface-2: #252425; --line: #343234; --track: #343234;
   --fg: #EEECEE; --fg-sub: #AAA6AA; --fg-faint: #767276;
-  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --down: #C5F276; --up: #E9804E;
+  --lime-ink: #C5F276; --alert: #FF8A7E; --alert-bg: #3A201D; --up: #E9804E;
   --plate: #E9E8E9; --plate-line: #343234; color-scheme: dark }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -137,6 +137,12 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .grid-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .grid-title span { margin-left: auto; font-size: 14px; color: var(--fg-sub); }
+.sym-filter { display: flex; flex-wrap: wrap; gap: 6px; }
+.sym-filter button { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--fg-sub); font-size: 14px; cursor: pointer; }
+.sym-filter button[aria-pressed="true"] { background: var(--fg); border-color: var(--fg); color: var(--surface); font-weight: 600; }
+.sym-filter button:disabled { opacity: 0.35; cursor: default; }
+.sym-filter .review-chip { color: var(--alert); border-color: var(--alert); }
+.sym-filter .review-chip[aria-pressed="true"] { background: var(--alert); border-color: var(--alert); color: #FFFFFF; }
 
 .day { border: 1px solid var(--line); border-radius: 10px; scroll-margin-top: 12px; }
 .day.focus { border-color: var(--lime-ink); box-shadow: 0 0 0 3px var(--lime-light); }
@@ -145,8 +151,6 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .day-head .time { font-size: 14px; color: var(--fg-sub); }
 .day-head .count { margin-left: auto; font-size: 14px; color: var(--fg-sub); }
 .day-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-.cond { margin: 0; padding: 8px 12px; background: var(--surface-2); border-radius: 8px; font-size: 16px; line-height: 1.7; }
-.cond small { display: block; font-size: 13px; color: var(--fg-sub); margin-bottom: 2px; letter-spacing: 0.02em; }
 .entry { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 4px 14px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .entry:first-of-type { border-top: 0; padding-top: 0; }
 .entry .type { font-weight: 600; font-size: 15px; }
@@ -156,28 +160,17 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .entry .text .label { color: var(--fg-sub); }
 .entry.flagged .type { color: var(--alert); }
 .review { font-size: 13px; font-weight: 600; color: var(--alert); background: var(--alert-bg); border-radius: 4px; padding: 1px 6px; }
+.cond-row { padding-top: 10px; border-top: 1px dashed var(--line); }
+.cond-row:first-child { border-top: 0; padding-top: 0; }
+.cond-row .when { font-size: 14px; color: var(--fg-sub); }
+.cond-row .when b { color: var(--fg); font-weight: 600; }
+.cond-row p { margin: 2px 0 0; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
 .rest { font-size: 14px; color: var(--fg-sub); line-height: 1.7; }
 .rest b { color: var(--fg); font-weight: 600; margin-right: 4px; }
 .rest q { quotes: "“" "”"; }
-.day.none { border-style: dashed; }
-.day.none .day-head { border-bottom: 0; color: var(--fg-faint); }
-.day.none h3 { color: var(--fg-faint); font-weight: 500; }
 
 /* 통증 기록 */
-.headline { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.headline .change { display: flex; align-items: baseline; gap: 6px; font-size: 14px; }
-.headline strong { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
-.headline .arrow { font-weight: 700; }
-.headline .peak { font-size: 13px; color: var(--fg-sub); }
-.headline .peak b { color: var(--fg); font-family: var(--mono); }
-.chart { width: 100%; height: auto; display: block; }
-.chart text { fill: var(--fg-sub); font-family: var(--mono); font-size: 14px; }
-.chart .col { cursor: pointer; }
-.chart .col:focus { outline: none; }
-.chart .col:focus-visible .hit { stroke: var(--lime-ink); stroke-width: 2; }
 .chart-note { font-size: 13px; color: var(--fg-sub); display: flex; gap: 12px; flex-wrap: wrap; }
-.chart-note .key { vertical-align: middle; margin-right: 4px; }
-.chart-note i { display: inline-block; width: 18px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 4px; }
 .scope { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; color: var(--fg-sub); }
 .scope h4 { color: var(--fg); }
 .scope button { margin-left: auto; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
@@ -194,9 +187,11 @@ table.sym-grid { border-collapse: collapse; width: 100%; font-size: 14px; }
 .prec .when { font-size: 14px; line-height: 1.35; }
 .prec .when small { display: block; font-size: 13px; color: var(--fg-sub); }
 .prec .parts { display: flex; flex-wrap: wrap; gap: 4px; }
-.prec .score { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 15px; }
+/* 줄마다 같은 칸: 발생 당시 · → · 1시간 뒤 · 변화. '기록 없음'은 뒤 두 칸을 씀 */
+.prec .score { display: grid; grid-template-columns: 22px auto 22px 34px; align-items: center; gap: 6px; font-family: var(--mono); font-size: 15px; }
+.prec .score .none { grid-column: 3 / span 2; font-family: var(--sans); font-size: 13px; white-space: nowrap; }
 .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; color: #2B282B; }
-.prec .delta { font-size: 13px; min-width: 30px; text-align: right; }
+.prec .delta { font-size: 13px; text-align: right; }
 .down { color: var(--lime-ink); }
 .up { color: var(--up); }
 .muted { color: var(--fg-faint); }
