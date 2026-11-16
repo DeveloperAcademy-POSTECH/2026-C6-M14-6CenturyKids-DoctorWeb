@@ -44,7 +44,7 @@ const face = { bodyPart: 'headFace', bodySide: 'center' } as const;
 
 export const SAMPLE_PATIENTS: Patient[] = [
   {
-    id: 'p1', name: '이정숙', sex: '여', age: 67, cancer: '대장암 3기',
+    id: 'p1', name: '김미자', sex: '여', age: 67, cancer: '대장암 3기',
     symptoms: [
       call('2026-11-09 09:12', '어젯밤에 배가 아파서 잠을 좀 설쳤어요. 그래도 아침은 조금 먹었어요.', [
         has('nauseaVomiting', '네, 아직 좀 울렁거려요 / 구토 횟수: 아침에 한 번, 어제 저녁에 한 번이요 / 메스꺼움 시작: 항암 맞고 다음 날부터 계속이에요', { occurrenceCount: 2 }),
