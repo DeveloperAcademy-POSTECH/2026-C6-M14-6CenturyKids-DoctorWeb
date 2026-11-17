@@ -1,15 +1,16 @@
-import { MOODS } from '../domain/labels.ts';
 import type { StateOfMind } from '../domain/types.ts';
+import { MOODS } from '../domain/labels.ts';
+import calm from '../assets/avatar/calm.png';
+import worried from '../assets/avatar/worried.png';
+import anxious from '../assets/avatar/anxious.png';
+import notready from '../assets/avatar/notready.png';
+import unsure from '../assets/avatar/unsure.png';
 
-/** 진료 전 기록 기분 얼굴 (앱 AppFeedback.Avatar 색). 기분이 없으면 회색 */
-export default function Avatar({ mood }: { mood?: StateOfMind }) {
-  return (
-    <span className={`avatar ${mood ? '' : 'none'}`} style={mood ? { background: MOODS[mood].color } : undefined}>
-      <svg viewBox="0 0 20 20" aria-hidden="true">
-        <circle cx="7" cy="8.5" r="1.3" fill="#2B282B" />
-        <circle cx="13" cy="8.5" r="1.3" fill="#2B282B" />
-        <path d="M6.5 13c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5" stroke="#2B282B" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-      </svg>
-    </span>
-  );
+// 피그마 디자인 시스템 Avatar (주치의 캐릭터 얼굴, Mood=Calm·Worried·Anxious·NotReady·Unsure)
+const FACES: Record<StateOfMind, string> = { candid: calm, comfortable: worried, slowly: anxious, carefully: notready, unsure };
+
+/** 진료 전 기록 마음 얼굴. 마음이 없으면 같은 크기 빈 자리 */
+export default function Avatar({ mood, size = 40 }: { mood?: StateOfMind; size?: 40 | 48 }) {
+  if (!mood) return <span className="avatar-slot" style={{ width: size, height: size }} aria-hidden="true" />;
+  return <img className="avatar" src={FACES[mood]} width={size} height={size} alt={MOODS[mood].title} />;
 }

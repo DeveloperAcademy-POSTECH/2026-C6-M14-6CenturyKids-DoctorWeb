@@ -1,4 +1,4 @@
-import { DETAIL_LABELS } from '../domain/labels.ts';
+import { COUNT_PREFIX, DETAIL_LABELS, locationName } from '../domain/labels.ts';
 import type { SymptomEntry } from '../domain/types.ts';
 
 const REVIEW = '[검토 필요]';
@@ -46,3 +46,41 @@ export function parseDetail(entry: SymptomEntry): ParsedDetail {
 }
 
 export const isReview = (entry: SymptomEntry) => !!entry.detail?.trim().startsWith(REVIEW);
+
+/**
+ * 한 답에서 칩으로 보일 사실: 기타 이름 · 모름 · 부위(환자가 말한 자리) · 횟수 · 지속 시간.
+ * 한눈에 보기와 자세히가 같은 말로 보이게 한 곳에서 만든다.
+ */
+export function entryFacts(entry: SymptomEntry): string[] {
+  const { otherName } = parseDetail(entry);
+  const prefix = COUNT_PREFIX[entry.symptomType];
+  const facts: string[] = [];
+  if (otherName) facts.push(otherName);
+  if (entry.presence === 'unknown') facts.push('모름');
+  if (entry.bodyPart) facts.push(`${locationName(entry.bodyPart, entry.bodySide)}${entry.rawLocationText ? ` “${entry.rawLocationText}”` : ''}`);
+  else if (entry.rawLocationText) facts.push(`“${entry.rawLocationText}”`);
+  if (entry.occurrenceCount !== undefined) facts.push(`${prefix ? `${prefix} ` : ''}${entry.occurrenceCount}회`);
+  if (entry.durationMinutes !== undefined) facts.push(`한 번에 ${entry.durationMinutes}분`);
+  return facts;
+}
+
+/**
+ * 한 증상의 7일 답을 처방 판단에 쓰기 좋게 모은다: 말한 부위(겹침 없이) · 하루 최대 횟수 · 한 번 최대 시간 · 기타 이름.
+ * 날짜별로 다시 읽지 않아도 '얼마나 심했는지'가 보이게 가장 큰 값을 쓴다.
+ */
+export function peakFacts(entries: SymptomEntry[]): string[] {
+  const told = entries.filter((e) => e.presence !== 'absent');
+  const facts: string[] = [];
+  const names = [...new Set(told.map((e) => parseDetail(e).otherName).filter((n): n is string => !!n))];
+  facts.push(...names);
+  const parts = [...new Set(told.filter((e) => e.bodyPart).map((e) => locationName(e.bodyPart!, e.bodySide)))];
+  facts.push(...parts);
+  const counts = told.map((e) => e.occurrenceCount).filter((n): n is number => n !== undefined);
+  if (counts.length) {
+    const prefix = COUNT_PREFIX[told[0].symptomType];
+    facts.push(`${prefix ? `${prefix} ` : ''}최대 ${Math.max(...counts)}회`);
+  }
+  const mins = told.map((e) => e.durationMinutes).filter((n): n is number => n !== undefined);
+  if (mins.length) facts.push(`한 번에 최대 ${Math.max(...mins)}분`);
+  return facts;
+}
