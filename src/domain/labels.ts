@@ -4,6 +4,20 @@ export const SYMPTOM_NAMES: Record<SymptomType, string> = {
   nauseaVomiting: '오심·구토', constipation: '변비', diarrhea: '설사', oralPain: '구내염',
   numbness: '손발 저림', rashItching: '피부 발진·가려움', dehydrationNutrition: '탈수·영양', other: '기타',
 };
+/** 증상 고정 색 (환자 앱과 같음, 디자인 시스템 chart/category fill · text). 판단이 아닌 증상 구분용 */
+export const SYMPTOM_COLORS: Record<SymptomType, { fill: string; text: string }> = {
+  nauseaVomiting: { fill: '#82F6EF', text: '#136F6B' },
+  diarrhea: { fill: '#FED6BD', text: '#8B4E22' },
+  dehydrationNutrition: { fill: '#C5F276', text: '#476D17' },
+  rashItching: { fill: '#E8D7FD', text: '#732BCC' },
+  numbness: { fill: '#CFE1FD', text: '#215BB8' },
+  constipation: { fill: '#F4E174', text: '#6C6113' },
+  oralPain: { fill: '#FDD0E8', text: '#9D2E6E' },
+  other: { fill: '#E0DFE0', text: '#625E62' },
+};
+/** 증상 색을 CSS 변수로 넘긴다. 어느 쪽을 쓸지는 styles.css가 밝은·어두운 화면에 따라 고른다 */
+export const symVars = (type: SymptomType) =>
+  ({ '--sym-fill': SYMPTOM_COLORS[type].fill, '--sym-text': SYMPTOM_COLORS[type].text }) as Record<string, string>;
 export const CARE_CALL_TYPES = (Object.keys(SYMPTOM_NAMES) as SymptomType[]).filter((t) => t !== 'other');
 
 // 앱 side_effects.json: 꼬리질문이 둘인 항목만 답 앞에 질문 이름이 붙어 저장된다

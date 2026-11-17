@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseDetail } from './symptomDetail.ts';
+import { entryFacts, parseDetail, peakFacts } from './symptomDetail.ts';
 
 test('오심·구토는 앱 설정의 질문 이름만 떼어 낸다', () => {
   const d = parseDetail({ symptomType: 'nauseaVomiting', presence: 'present',
@@ -27,4 +27,20 @@ test('검토 필요 표시와 기타 증상 이름을 떼어 낸다', () => {
 
 test('detail이 없으면 줄도 없다', () => {
   assert.deepEqual(parseDetail({ symptomType: 'diarrhea', presence: 'absent' }).lines, []);
+});
+
+test('칩 사실: 부위와 환자가 말한 자리, 횟수 앞말, 지속 시간 순', () => {
+  assert.deepEqual(entryFacts({ symptomType: 'diarrhea', presence: 'present', bodyPart: 'abdomen', rawLocationText: '아랫배',
+    occurrenceCount: 4, durationMinutes: 10 }), ['배 “아랫배”', '하루 4회', '한 번에 10분']);
+  assert.deepEqual(entryFacts({ symptomType: 'other', presence: 'unknown', detail: '어지러움: 잘 모르겠어요' }), ['어지러움', '모름']);
+  assert.deepEqual(entryFacts({ symptomType: 'constipation', presence: 'present' }), []);
+});
+
+test('7일 모음: 부위는 겹침 없이, 횟수·시간은 가장 큰 값, 없음 답은 뺀다', () => {
+  assert.deepEqual(peakFacts([
+    { symptomType: 'diarrhea', presence: 'present', occurrenceCount: 3, bodyPart: 'abdomen' },
+    { symptomType: 'diarrhea', presence: 'present', occurrenceCount: 6, bodyPart: 'abdomen', durationMinutes: 5 },
+    { symptomType: 'diarrhea', presence: 'absent', occurrenceCount: 9 },
+  ]), ['배', '하루 최대 6회', '한 번에 최대 5분']);
+  assert.deepEqual(peakFacts([{ symptomType: 'constipation', presence: 'absent' }]), []);
 });
