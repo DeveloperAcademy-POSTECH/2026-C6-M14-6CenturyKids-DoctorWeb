@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { SAMPLE_PATIENTS, TODAY } from './data/samplePatients.ts';
+import { mergeRefreshed } from './data/mergeRefreshed.ts';
 import { loadDoctorData, NotDoctorError, type DoctorData } from './data/server.ts';
 import { supabase } from './lib/supabase.ts';
+import { useAutoRefresh } from './lib/useAutoRefresh.ts';
 import LoginPage from './components/LoginPage.tsx';
+import type { RefreshInfo } from './components/RefreshStatus.tsx';
 import Workspace from './components/Workspace.tsx';
 import WorkspaceSkeleton from './components/WorkspaceSkeleton.tsx';
 
@@ -12,8 +15,11 @@ type State =
   | { kind: 'signedOut'; message?: string }
   | { kind: 'loading' }
   | { kind: 'error'; session: Session }
-  | { kind: 'ready'; data: DoctorData }
+  | { kind: 'ready'; data: DoctorData; updatedAt: Date }
   | { kind: 'sample' };
+
+/** 인터넷이 불안정해 응답이 오지 않아도 새로고침이 멈춰 있지 않게 */
+const REFRESH_TIMEOUT_MS = 20_000;
 
 export default function App() {
   const [state, setState] = useState<State>(() =>
@@ -23,6 +29,17 @@ export default function App() {
 
   /** 지금 화면에 띄운(또는 읽는 중인) 기록의 주인. 로그인한 사람이 바뀌면 다시 읽는다 */
   const openedFor = useRef<string | null>(null);
+  /** 지금 화면에 보이는 기록. 다시 읽은 결과와 비교한다 */
+  const shown = useRef<DoctorData | null>(null);
+  const refreshing = useRef(false);
+  const [refreshStatus, setRefreshStatus] = useState<RefreshInfo['status']>('idle');
+
+  /** 의사 권한이 없는 계정은 로그아웃시킨다 */
+  const rejectNotDoctor = useCallback(async () => {
+    openedFor.current = null;
+    await supabase?.auth.signOut();
+    setState({ kind: 'signedOut', message: '의사 계정으로만 들어올 수 있어요' });
+  }, []);
 
   /** 로그인된 사람이 의사인지 확인하고 담당 환자 기록을 읽는다. 같은 사람이면 다시 읽지 않는다 (force: 다시 시도) */
   const open = useCallback(async (session: Session, force = false) => {
@@ -33,19 +50,60 @@ export default function App() {
     try {
       const data = await loadDoctorData(supabase, session.user.id, new Date());
       // 읽는 사이에 다른 계정으로 바뀌었으면 이 결과는 버린다
-      if (openedFor.current === session.user.id) setState({ kind: 'ready', data });
+      if (openedFor.current === session.user.id) {
+        shown.current = data;
+        setRefreshStatus('idle');
+        setState({ kind: 'ready', data, updatedAt: new Date() });
+      }
     } catch (e) {
       if (openedFor.current !== session.user.id) return;
       if (e instanceof NotDoctorError) {
-        openedFor.current = null;
-        await supabase.auth.signOut();
-        setState({ kind: 'signedOut', message: '의사 계정으로만 들어올 수 있어요' });
+        await rejectNotDoctor();
       } else {
         console.error(e);
         setState({ kind: 'error', session });
       }
     }
-  }, []);
+  }, [rejectNotDoctor]);
+
+  /** 보던 화면을 그대로 둔 채 기록을 다시 읽는다. 실패하면 보던 기록을 지우지 않고 알려 준다 */
+  const refresh = useCallback(async () => {
+    const client = supabase;
+    const userId = openedFor.current;
+    const previous = shown.current;
+    if (!client || !userId || !previous || refreshing.current) return;
+    refreshing.current = true;
+    setRefreshStatus('refreshing');
+    const reload = async () => {
+      const { data } = await client.auth.getSession();
+      if (data.session?.user.id !== userId) throw new Error('로그인이 바뀌어 다시 읽지 않아요');
+      return loadDoctorData(client, userId, new Date());
+    };
+    const timeout = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('기록을 다시 읽는 시간이 초과됐어요')), REFRESH_TIMEOUT_MS);
+    });
+    try {
+      const next = await Promise.race([reload(), timeout]);
+      if (openedFor.current !== userId) return;
+      const merged = mergeRefreshed(previous, next);
+      if (!merged) throw new Error('일부 기록을 다시 읽지 못했어요');
+      shown.current = merged;
+      setRefreshStatus('idle');
+      setState((s) => (s.kind === 'ready' ? { kind: 'ready', data: merged, updatedAt: new Date() } : s));
+    } catch (e) {
+      if (openedFor.current !== userId) return;
+      if (e instanceof NotDoctorError) {
+        await rejectNotDoctor();
+      } else {
+        console.warn('기록 새로고침 실패', e);
+        setRefreshStatus('failed');
+      }
+    } finally {
+      refreshing.current = false;
+    }
+  }, [rejectNotDoctor]);
+
+  useAutoRefresh(refresh, state.kind === 'ready');
 
   // 자동 로그인: 저장된 로그인이 있으면 로그인 화면을 건너뛴다
   useEffect(() => {
@@ -98,7 +156,8 @@ export default function App() {
       return <LoginPage message={state.message} onSignedIn={open} onSample={() => setState({ kind: 'sample' })} />;
     case 'ready':
       return <Workspace patients={state.data.patients} doctorName={state.data.doctorName} today={new Date()}
-        sample={false} failed={state.data.failed} onSignOut={signOut} />;
+        sample={false} failed={state.data.failed} onSignOut={signOut}
+        refresh={{ updatedAt: state.updatedAt, status: refreshStatus, onRefresh: refresh }} />;
     case 'sample':
       return <Workspace patients={SAMPLE_PATIENTS} doctorName="김도윤" today={TODAY} sample failed={[]} onSignOut={signOut} />;
   }
