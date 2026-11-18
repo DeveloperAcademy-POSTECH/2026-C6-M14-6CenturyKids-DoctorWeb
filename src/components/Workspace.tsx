@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Patient } from '../domain/types.ts';
-import { weekWindows } from '../lib/dates.ts';
+import { mdw, weekWindows } from '../lib/dates.ts';
 import { lastRecordDate } from '../lib/patientSummary.ts';
 import { prefersReducedMotion, useMedia } from '../lib/useMedia.ts';
 import PainPanel from './PainPanel.tsx';
@@ -11,6 +11,7 @@ import SymptomPanel from './SymptomPanel.tsx';
 import RecordSummary from './RecordSummary.tsx';
 import Icon from './Icon.tsx';
 import { Button } from '@fluentui/react-components';
+import logo from '../assets/socdoc-logo.png';
 
 /** 진료 전 기록의 '함께 보낸 기록'을 누르면 통증·증상 칸이 그 날로 간다 */
 export interface Jump {
@@ -105,9 +106,9 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
     if (windows) setK(windows.indexOf(date));
     setJump({ date, seq: Date.now() });
     requestAnimationFrame(() => {
-      const section = document.getElementById('pain-records');
-      section?.focus({ preventScroll: true });
-      section?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+      const bar = document.getElementById('day-focus');
+      bar?.focus({ preventScroll: true });
+      bar?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
     });
   };
 
@@ -115,35 +116,40 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
     <div className="app">
       <a className="skip-link" href="#patient-records">환자 기록으로 건너뛰기</a>
       <header className="topbar">
-        <div className="brand">SocDoc</div>
-        <span className="current-page"><Icon name="activity" />환자 기록</span>
+        <div className="brand"><img src={logo} alt="SocDoc" width="49" height="24" /></div>
+        <span className="current-page">환자 기록</span>
         <div className="doctor-profile">{sample && <span className="sample">예시 데이터</span>}<span className="doctor-avatar">{doctorName.slice(0, 1)}</span><span><b>{doctorName} 선생님</b></span></div>
         <Button appearance="subtle" size="small" className="sign-out" icon={<Icon name="logout" size={16} />} onClick={onSignOut}>{sample ? '예시 닫기' : '로그아웃'}</Button>
       </header>
       <div className={`app-shell ${listOpen ? '' : 'collapsed'}`}>
+        {/* 환자 목록을 접어도 왼쪽에 한 줄(레일)을 남겨, 다시 여는 버튼이 늘 같은 자리에 있게 */}
+        {!listOpen || drawer ? (
+          <nav className="plist-rail" aria-label="환자 목록">
+            <Button appearance="subtle" className="rail-open" icon={<Icon name="panel" />} aria-label="환자 목록 열기" title="환자 목록 열기" aria-expanded={listOpen}
+              onClick={(e) => { listOpener.current = e.currentTarget; setListOpen(true); }} />
+          </nav>
+        ) : null}
         <PatientList patients={patients} selectedId={patient.id} today={today} onSelect={selectPatient} onClose={() => setListOpen(false)} modal={drawer} />
         <main className="workspace-main" id="patient-records" tabIndex={-1}>
 
-          <section className="patient-overview" aria-label="환자 및 선택 기간 요약">
+          <section className="patient-overview" aria-label="환자와 조회 기간 요약">
           <PatientHeader patient={patient} failed={failed}
-            listOpen={listOpen} onOpenList={() => {
-              listOpener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-              setListOpen(true);
-            }}
             period={windows ? { days, k, max: windows.max, onChange: (next) => { setK(next); setJump(null); } } : undefined} />
           <RecordSummary patient={patient} days={days} />
           </section>
-          <nav className="record-nav" aria-label="환자 기록 바로가기">
-            <span className="record-nav-label">선택 기간 기록</span>
-            <a href="#pain-records">통증 기록</a>
-            <a href="#symptom-records">증상 기록</a>
-            <a href="#previsit-records">진료 전 기록<Icon name="chevron" size={16} /></a>
-
-          </nav>
+          {/* 진료 전 기록을 맨 위에 (환자가 진료 전에 하고 싶은 말을 먼저). 그래서 아래로 건너뛰는 바로 가기 줄은 두지 않는다 */}
           <div className="cols">
+            <PrevisitPanel key={`previsit-${patient.id}`} patient={patient} days={days} onJump={goTo} />
+            {/* '이 날 기록 보기'를 누르면: 아래 통증·증상 칸이 그 하루만 보여 주고, 이 줄에서 무엇을 보는 중인지와 되돌리기를 알려 준다 */}
+            {jump && (
+              <div className="day-focus" id="day-focus" tabIndex={-1} role="status">
+                <Icon name="calendar" size={18} />
+                <span><b>{mdw(jump.date)}</b> 통증·증상 기록만 보고 있어요</span>
+                <button type="button" onClick={() => setJump(null)}>7일 전체 보기</button>
+              </div>
+            )}
             <PainPanel key={`pain-${patient.id}`} records={patient.pains} days={days} jump={jump} />
             <SymptomPanel key={`symptom-${patient.id}`} records={patient.symptoms} days={days} jump={jump} />
-            <PrevisitPanel key={`previsit-${patient.id}`} patient={patient} days={days} onJump={goTo} />
           </div>
           <p className="workspace-footnote">환자가 직접 남긴 기록입니다. 기록이 없는 날은 증상이 없는 날과 구분해 주세요.</p>
         </main>

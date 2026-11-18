@@ -1,7 +1,9 @@
 :root {
   --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px; --space-3xl: 64px;
-  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.125rem;
-  --text-display: 1.75rem; --text-section: 1.125rem; --text-title: 1rem; --text-lead: 1rem;
+  /* 글자 크기는 네 단계만, 이웃 단계 차이를 작게 (멘토 피드백: 극단적인 크기 차이는 AI 느낌).
+     13 설명·라벨 / 15 본문 / 17 칸 제목 / 20 환자 이름·요약 숫자. 굵기는 400·500·600만 */
+  --text-xs: 13px; --text-sm: 13px; --text-md: 15px; --text-lg: 17px;
+  --text-display: 20px; --text-section: 17px; --text-title: 15px; --text-lead: 15px;
   --bg: #F5F7F5; --surface: #FFFFFF; --surface-2: #F2F5EE; --line: #E1E7E0; --line-selected: #C9DBB7; --track: #E8EDE3;
   --fg: #26312B; --fg-sub: #626E62; --fg-faint: #677362; --input-line: #899382;
   --lime: #C5F276; --lime-light: #EDF4E5; --lime-ink: #46622B; --green: #527C3E;

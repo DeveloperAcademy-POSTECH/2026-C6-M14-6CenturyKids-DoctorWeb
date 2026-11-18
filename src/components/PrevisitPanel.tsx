@@ -48,12 +48,12 @@ export default function PrevisitPanel({ patient, days, onJump }: Props) {
                 <div className="sent"><span>{mdw(r.submittedAt)}</span><span>{hm(r.submittedAt)} 보냄</span></div>
               </div>
               <button type="button" className="attach" onClick={() => onJump(r.selectedDate)}>
-                <span>함께 보낸 기록 <b>{mdw(r.selectedDate)}</b></span>
+                <span>환자가 이야기하고 싶은 날 <b>{mdw(r.selectedDate)}</b></span>
                 {symptom && <span className="badge">증상 {presentCount}</span>}
                 {maxPain !== undefined && (
                   <span className="badge"><span className="mark" style={{ background: scoreColor(maxPain) }} />통증 {maxPain}점</span>
                 )}
-                <span className="go" aria-hidden="true"><Icon name="chevron" size={16} /></span>
+                <span className="go">이 날 기록 보기<Icon name="arrowDown" size={16} /></span>
               </button>
               <div className="letter-body">
                 {r.memo ? <p>{r.memo}</p> : <p className="empty">하고 싶은 말을 남기지 않았어요.</p>}

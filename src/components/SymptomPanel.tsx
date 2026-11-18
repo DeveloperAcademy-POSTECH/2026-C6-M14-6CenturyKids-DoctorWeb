@@ -1,5 +1,5 @@
 import Icon from './Icon.tsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Jump } from './Workspace.tsx';
 import { CARE_CALL_TYPES, COUNT_PREFIX, SYMPTOM_NAMES, locationName } from '../domain/labels.ts';
 import type { SymptomEntry, SymptomRecord, SymptomType } from '../domain/types.ts';
@@ -26,6 +26,26 @@ export default function SymptomPanel({ records, days, jump }: Props) {
   // 증상별 기록에서 볼 증상 (all = 전체)
   const [filter, setFilter] = useState<Filter>('all');
   const { container, scrollTo, toTop } = useScrollTo<HTMLDivElement>();
+  const recordsRef = useRef<HTMLDivElement>(null);
+  /**
+   * 칩을 바꾸면 목록 길이가 달라져 스크롤이 당겨지고 칸 크기가 바뀌던 문제:
+   * '증상별 기록' 제목을 늘 같은 자리(칸 맨 위)에 두고, 목록 자리는 최소 높이로 지킨다
+   */
+  const [alignSeq, setAlignSeq] = useState(0);
+  const pickFilter = (v: Filter) => {
+    setFilter(v);
+    setAlignSeq((n) => n + 1);
+  };
+  // 새 목록이 그려진 직후(화면에 칠하기 전) 제목 자리를 맞춘다. 탭이 뒤에 있어도 동작하도록 rAF 대신 레이아웃 효과로
+  useLayoutEffect(() => {
+    if (!alignSeq) return;
+    const box = container.current;
+    const head = recordsRef.current;
+    if (!box || !head) return;
+    const inner = getComputedStyle(box).overflowY === 'auto' && box.scrollHeight > box.clientHeight;
+    if (inner) box.scrollTop += head.getBoundingClientRect().top - box.getBoundingClientRect().top - 8;
+    else window.scrollTo({ top: head.getBoundingClientRect().top + window.scrollY - 16 });
+  }, [alignSeq]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 기간이 바뀌면 강조를 풀고 맨 위로 (날짜로 가기는 아래 효과가 다시 고른다)
   const start = days[0]?.getTime();
@@ -36,14 +56,31 @@ export default function SymptomPanel({ records, days, jump }: Props) {
   }, [start]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!jump) return;
+    if (!jump) { setFocusDay(null); return; }
     const day = dayKey(jump.date);
     setFocusDay(day);
     setTarget(null);
     toTop();
   }, [jump]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 표의 점을 눌러 아래 답으로 내려갔을 때만 '7일 증상 분포로' 되돌아가는 버튼을 띄운다
+  const [atEntry, setAtEntry] = useState(false);
+  // 버튼이 사라지면서 목록 높이가 바뀌면 진행 중인 부드러운 스크롤이 멈춰서, 버튼을 먼저 감추고 다 그린 뒤에 올라간다
+  const goingBack = useRef(false);
+  const backToGrid = () => {
+    goingBack.current = true;
+    setAtEntry(false);
+  };
+  useEffect(() => {
+    if (atEntry || !goingBack.current) return;
+    goingBack.current = false;
+    // 칸 안 스크롤과 화면 스크롤 둘 다 표가 보이는 자리로 (점을 누를 때 둘 다 움직였을 수 있어서)
+    container.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    const section = document.getElementById('symptom-records');
+    if (section && section.getBoundingClientRect().top < 0) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [atEntry]); // eslint-disable-line react-hooks/exhaustive-deps
   const goToEntry = (day: string, type: SymptomType) => {
+    setAtEntry(true);
     // 다른 증상만 보고 있으면 누른 증상으로 바꿔야 그 기록이 보인다
     if (shown !== 'all' && shown !== type) setFilter(type);
     setFocusDay(day);
@@ -54,8 +91,15 @@ export default function SymptomPanel({ records, days, jump }: Props) {
   const byDay = new Map(records.map((r) => [dayKey(r.recordedDate), r]));
   const inWindow = days.map((t) => byDay.get(dayKey(t))).filter((r): r is SymptomRecord => !!r);
   const summaries = summarizeBySymptom(inWindow);
-  // 기간을 바꿔 고른 증상의 답이 없으면 전체를 보여준다
-  const available = (f: Filter) => f === 'all' || summaries.some((s) => s.type === f);
+  // 있다고(또는 모른다고) 답한 날이 있는 증상만 고를 수 있다. '없음'만 있는 증상은 칩을 흐리게 두어
+  // 누르지 않아도 '이 기간 증상 없었음'을 알 수 있게 (목록에도 넣지 않는다)
+  // 진료 전 기록에서 '이 날 기록 보기'로 오면 그 하루 답만 (위 날짜 줄에서 7일 전체로 되돌린다)
+  const onlyDay = jump ? dayKey(jump.date) : null;
+  const told = summaries
+    .map((s) => (onlyDay ? { ...s, days: s.days.filter((d) => d.day === onlyDay) } : s))
+    .filter((s) => s.days.some((d) => d.state !== 'absent'));
+  const asked = new Set(summaries.map((s) => s.type));
+  const available = (f: Filter) => f === 'all' || told.some((s) => s.type === f);
   const shown: Filter = available(filter) ? filter : 'all';
   const rows: SymptomType[] = inWindow.some((r) => r.symptoms.some((e) => e.symptomType === 'other'))
     ? [...CARE_CALL_TYPES, 'other'] : CARE_CALL_TYPES;
@@ -70,14 +114,20 @@ export default function SymptomPanel({ records, days, jump }: Props) {
       <div className="panel-body" ref={container}>
         {!records.length && <p className="empty-note">아직 증상 기록이 없어요</p>}
         {records.length > 0 && inWindow.length === 0 && <p className="empty-note">선택한 7일에는 증상 기록이 없어요</p>}
-        {inWindow.length > 0 && <WeekGrid days={days} byDay={byDay} rows={rows} focusDay={focusDay} onPick={goToEntry} />}
+        {/* 하루만 보는 중이면 7일 표는 감춘다 (그 날 답만 보여 준다는 안내와 맞게) */}
+        {inWindow.length > 0 && !onlyDay && <WeekGrid days={days} byDay={byDay} rows={rows} focusDay={focusDay} onPick={goToEntry} />}
         {records.length > 0 && inWindow.length > 0 && (
-          <>
-            <h3 className="records-heading">증상별 기록</h3>
-            <SymptomFilter value={shown} available={available} onChange={setFilter} />
-            {summaries.filter((s) => shown === 'all' || s.type === shown)
+          <div className="sym-records" ref={recordsRef}>
+            <h3 className="records-heading">{onlyDay && jump ? `${mdw(jump.date)} 증상 기록` : '증상별 기록'}</h3>
+            <SymptomFilter value={shown} asked={asked} available={available} onChange={pickFilter} />
+            {told.filter((s) => shown === 'all' || s.type === shown)
               .map((s) => <SymptomCard key={s.type} summary={s} target={target} />)}
-          </>
+            {atEntry && (
+              <button type="button" className="back-to-grid" onClick={backToGrid}>
+                <Icon name="arrowUp" size={16} />7일 증상 분포로
+              </button>
+            )}
+          </div>
         )}
       </div>
     </section>
@@ -143,23 +193,29 @@ function WeekGrid({ days, byDay, rows, focusDay, onPick }: {
   );
 }
 
-/** [전체] [오심·구토] … [기타]: 이 기간 답이 없는 증상은 누를 수 없음 */
-function SymptomFilter({ value, available, onChange }: {
+/** [전체] [오심·구토] … [기타]: 이 기간 물어본 증상만. '없음'만 답한 증상은 흐린 칩(누를 수 없음) */
+function SymptomFilter({ value, asked, available, onChange }: {
   value: Filter;
+  asked: Set<SymptomType>;
   available: (f: Filter) => boolean;
   onChange: (v: Filter) => void;
 }) {
   const options: Filter[] = ['all', ...CARE_CALL_TYPES, 'other'];
+  const anyOff = options.some((o) => o !== 'all' && asked.has(o) && !available(o));
   return (
     <div className="sym-filter" role="group" aria-label="증상 고르기">
-      {options.filter(available).map((o) => {
+      {options.filter((o) => o === 'all' || asked.has(o)).map((o) => {
+        const off = !available(o);
         return (
-          <ToggleButton key={o} size="small" appearance="outline"
-            checked={value === o} disabled={!available(o)} onClick={() => onChange(o)}>
+          <ToggleButton key={o} size="small" appearance="outline" className={off ? 'none-told' : undefined}
+            checked={value === o} disabled={off} onClick={() => onChange(o)}
+            title={off ? '이 기간에는 없다고 답했어요' : undefined}
+            aria-label={off ? `${SYMPTOM_NAMES[o as SymptomType]}, 이 기간 없다고 답함` : undefined}>
             {o === 'all' ? '전체' : SYMPTOM_NAMES[o]}
           </ToggleButton>
         );
       })}
+      {anyOff && <span className="sym-filter-note">흐린 증상은 이 기간에 없다고 답했어요</span>}
     </div>
   );
 }

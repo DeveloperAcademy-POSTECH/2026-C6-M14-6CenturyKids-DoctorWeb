@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Patient } from '../domain/types.ts';
 import { relative } from '../lib/dates.ts';
 import { lastRecordDate } from '../lib/patientSummary.ts';
-import Avatar from './Avatar.tsx';
+import PatientAvatar from './PatientAvatar.tsx';
 import Icon from './Icon.tsx';
 import { patientMeta } from './PatientHeader.tsx';
 import { Button, Input } from '@fluentui/react-components';
@@ -37,10 +37,9 @@ export default function PatientList({ patients, selectedId, today, onSelect, onC
           {shown.length === 0 && <div className="search-empty" role="status"><Icon name="search" size={28} /><p>찾는 환자가 없어요</p><span>환자 이름을 다시 확인해 주세요.</span><Button appearance="subtle" size="small" onClick={() => setQuery('')}>검색 초기화</Button></div>}
           {shown.map((p) => {
             const last = lastRecordDate(p);
-            const latest = p.previsits[0];
             return (
               <button key={p.id} type="button" className="pt" aria-current={p.id === selectedId} onClick={() => onSelect(p.id)}>
-                <Avatar mood={latest?.stateOfMind} />
+                <PatientAvatar size={32} />
                 <span className="pt-main">
                   <span className="pt-row"><b>{p.name ?? '이름 없음'}</b><small>{last ? relative(last, today) : '기록 없음'}</small></span>
                   <small>{[patientMeta(p), p.cancer].filter(Boolean).join(' / ')}</small>
