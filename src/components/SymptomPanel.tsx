@@ -19,6 +19,9 @@ interface Props {
 /** Filter the detail list without changing the weekly overview. */
 type Filter = SymptomType | 'all';
 
+/** 화면 스크롤로 옮길 때 고정된 상단 바에 가리지 않게 뺄 높이 */
+const topbarHeight = () => document.querySelector('.topbar')?.getBoundingClientRect().height ?? 0;
+
 /** 증상 기록: 7일 단위, 위는 한눈에 보는 표, 아래는 증상별 줄글 */
 export default function SymptomPanel({ records, days, jump }: Props) {
   const [focusDay, setFocusDay] = useState<string | null>(null);
@@ -44,7 +47,7 @@ export default function SymptomPanel({ records, days, jump }: Props) {
     if (!box || !head) return;
     const inner = getComputedStyle(box).overflowY === 'auto' && box.scrollHeight > box.clientHeight;
     if (inner) box.scrollTop += head.getBoundingClientRect().top - box.getBoundingClientRect().top - 8;
-    else window.scrollTo({ top: head.getBoundingClientRect().top + window.scrollY - 16 });
+    else window.scrollTo({ top: head.getBoundingClientRect().top + window.scrollY - topbarHeight() - 16 });
   }, [alignSeq]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 기간이 바뀌면 강조를 풀고 맨 위로 (날짜로 가기는 아래 효과가 다시 고른다)
@@ -77,7 +80,7 @@ export default function SymptomPanel({ records, days, jump }: Props) {
     // 칸 안 스크롤과 화면 스크롤 둘 다 표가 보이는 자리로 (점을 누를 때 둘 다 움직였을 수 있어서)
     container.current?.scrollTo({ top: 0, behavior: 'smooth' });
     const section = document.getElementById('symptom-records');
-    if (section && section.getBoundingClientRect().top < 0) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (section && section.getBoundingClientRect().top < topbarHeight()) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [atEntry]); // eslint-disable-line react-hooks/exhaustive-deps
   const goToEntry = (day: string, type: SymptomType) => {
     setAtEntry(true);

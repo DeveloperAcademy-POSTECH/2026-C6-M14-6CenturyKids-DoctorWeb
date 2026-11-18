@@ -22,7 +22,7 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .app { max-width: var(--container); min-height: 100dvh; margin-inline: auto; background: var(--bg); }
 .skip-link { position: absolute; top: -80px; left: 16px; z-index: 500; padding: var(--space-sm) var(--space-md); background: var(--surface); color: var(--fg); }
 .skip-link:focus-visible { top: 8px; }
-.topbar { height: 64px; display: flex; align-items: center; gap: var(--space-xl); padding-inline: var(--space-xl); border-bottom: 1px solid var(--line); background: var(--surface); color: var(--fg); }
+.topbar { position: sticky; top: 0; z-index: var(--z-topbar); height: var(--topbar-h); padding-top: env(safe-area-inset-top, 0px); display: flex; align-items: center; gap: var(--space-xl); padding-inline: var(--space-xl); border-bottom: 1px solid var(--line); background: var(--surface); color: var(--fg); }
 .brand { display: flex; align-items: center; gap: var(--space-md); font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
 .brand span { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--fg-sub); padding-left: var(--space-md); border-left: 1px solid var(--line); }
 .current-page { height: 64px; display: inline-flex; align-items: center; gap: var(--space-xs); border-bottom: 2px solid var(--green); color: var(--lime-ink); font-size: 15px; font-weight: 600; }
@@ -33,7 +33,7 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .app-shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
 .app-shell.collapsed { grid-template-columns: 56px minmax(0, 1fr); }
 /* 접힌 환자 목록 자리: 56 폭 한 줄, 맨 위에 다시 여는 버튼 */
-.plist-rail { position: sticky; top: 0; height: calc(100dvh - 64px); display: flex; flex-direction: column; align-items: center; padding-top: 20px; border-right: 1px solid var(--line); background: var(--surface-sidebar, var(--surface)); }
+.plist-rail { position: sticky; top: var(--topbar-h); height: calc(100dvh - var(--topbar-h)); display: flex; flex-direction: column; align-items: center; padding-top: 20px; border-right: 1px solid var(--line); background: var(--surface-sidebar, var(--surface)); }
 .rail-open { min-width: 40px; min-height: 40px; }
 .brand img { display: block; height: 24px; width: auto; }
 .app-shell.collapsed > .plist { display: none; }
@@ -85,7 +85,7 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .panel-body { overflow-anchor: none; padding: 20px; display: flex; flex-direction: column; gap: var(--space-md); min-width: 0; }
 .pain > .panel-body, .symptom > .panel-body { max-height: 690px; overflow-y: auto; scrollbar-width: thin; scrollbar-gutter: stable; }
 .panel-body > * { flex-shrink: 0; }
-.plist { position: sticky; top: 0; height: calc(100dvh - 64px); min-height: 600px; border: 0; border-right: 1px solid var(--line); border-radius: 0; background: var(--surface); display: flex; flex-direction: column; }
+.plist { position: sticky; top: var(--topbar-h); height: calc(100dvh - var(--topbar-h)); min-height: 600px; border: 0; border-right: 1px solid var(--line); border-radius: 0; background: var(--surface); display: flex; flex-direction: column; }
 .plist .panel-head { border-bottom: 0; padding: 20px var(--space-md) var(--space-sm); }
 .plist .panel-head h2 { font-size: 15px; }
 .plist .panel-head .hint { color: var(--lime-ink); font-weight: 600; }
@@ -760,3 +760,5 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .trend-day:focus-visible { outline: 2px solid var(--lime-ink); outline-offset: -2px; border-radius: 999px; }
 /* 고정된 증상 칩 위로 목록 글이 비쳐 보이던 틈(칸 안쪽 여백)을 칩 배경으로 덮는다 */
 .symptom .sym-records .sym-filter { top: -24px; margin-top: -16px; padding-top: 24px; }
+/* 좁은 화면은 칸 안 스크롤이 없어 화면 기준으로 붙으므로 상단 바 아래에 둔다 */
+@media (max-width: 800px) { .symptom .sym-records .sym-filter { top: calc(var(--topbar-h) - 24px); } }
