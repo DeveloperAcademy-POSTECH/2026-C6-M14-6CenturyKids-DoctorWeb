@@ -5,6 +5,7 @@ import { loadDoctorData, NotDoctorError, type DoctorData } from './data/server.t
 import { supabase } from './lib/supabase.ts';
 import LoginPage from './components/LoginPage.tsx';
 import Workspace from './components/Workspace.tsx';
+import WorkspaceSkeleton from './components/WorkspaceSkeleton.tsx';
 
 type State =
   | { kind: 'checking' }
@@ -15,7 +16,10 @@ type State =
   | { kind: 'sample' };
 
 export default function App() {
-  const [state, setState] = useState<State>({ kind: supabase ? 'checking' : 'signedOut' });
+  const [state, setState] = useState<State>(() =>
+    (import.meta.env.DEV || !supabase) && new URLSearchParams(window.location.search).get('demo') === '1'
+      ? { kind: 'sample' }
+      : { kind: supabase ? 'checking' : 'signedOut' });
 
   /** 지금 화면에 띄운(또는 읽는 중인) 기록의 주인. 로그인한 사람이 바뀌면 다시 읽는다 */
   const openedFor = useRef<string | null>(null);
@@ -78,9 +82,8 @@ export default function App() {
 
   switch (state.kind) {
     case 'checking':
-      return null; // 저장된 로그인을 확인하는 잠깐 동안 로그인 화면이 깜빡이지 않게
     case 'loading':
-      return <div className="center-note"><p>기록을 불러오고 있어요</p></div>;
+      return <WorkspaceSkeleton />;
     case 'error':
       return (
         <div className="center-note">

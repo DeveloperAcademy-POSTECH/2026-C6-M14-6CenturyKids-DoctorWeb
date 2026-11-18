@@ -11,3 +11,9 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+
+# Local iteration backups and review artifacts
+.reference-attempt-src*/
+output/*
+!output/detail-dashboard.png
+!output/detail-previsit.png
