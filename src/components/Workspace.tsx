@@ -9,6 +9,7 @@ import PatientList from './PatientList.tsx';
 import PrevisitPanel from './PrevisitPanel.tsx';
 import SymptomPanel from './SymptomPanel.tsx';
 import RecordSummary from './RecordSummary.tsx';
+import RefreshStatus, { type RefreshInfo } from './RefreshStatus.tsx';
 import Icon from './Icon.tsx';
 import { Button } from '@fluentui/react-components';
 import logo from '../assets/socdoc-logo.png';
@@ -28,12 +29,17 @@ interface Props {
   /** 읽지 못한 부분 ("진료 전 기록") */
   failed: string[];
   onSignOut: () => void;
+  /** 서버 기록을 볼 때만. 예시 데이터는 다시 읽을 것이 없다 */
+  refresh?: RefreshInfo;
 }
 
 // Smaller screens keep the full record area and reveal the patient list on demand.
 const DRAWER_QUERY = '(max-width: 1100px)';
 
-export default function Workspace({ patients, doctorName, today, sample, failed, onSignOut }: Props) {
+const newestPatient = (patients: Patient[]) =>
+  [...patients].sort((a, b) => (lastRecordDate(b)?.getTime() ?? 0) - (lastRecordDate(a)?.getTime() ?? 0))[0];
+
+export default function Workspace({ patients, doctorName, today, sample, failed, onSignOut, refresh }: Props) {
   const drawer = useMedia(DRAWER_QUERY);
   const [listOpen, setListOpen] = useState(!drawer);
   const listOpener = useRef<HTMLElement | null>(null);
@@ -70,13 +76,18 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
     };
   }, [drawer, listOpen]);
 
-  const [patientId, setPatientId] = useState(() =>
-    [...patients].sort((a, b) => (lastRecordDate(b)?.getTime() ?? 0) - (lastRecordDate(a)?.getTime() ?? 0))[0]?.id);
-  const patient = patients.find((p) => p.id === patientId);
+  const [patientId, setPatientId] = useState(() => newestPatient(patients)?.id);
+  // 새로고침으로 보던 환자가 목록에서 빠지면 가장 최근 기록 환자를 보여 준다
+  const patient = patients.find((p) => p.id === patientId) ?? newestPatient(patients);
   const [jump, setJump] = useState<Jump | null>(null);
   // 통증·증상 칸은 같은 7일을 함께 본다 (기준은 두 기록 중 더 늦은 날)
   const windows = useMemo(() => patient && weekWindows([...patient.symptoms, ...patient.pains].map((r) => r.recordedDate)), [patient]);
-  const [k, setK] = useState(0);
+  const [page, setK] = useState(0);
+  const k = Math.min(page, windows?.max ?? 0);
+  // 새 기록으로 7일 범위가 옮겨지면 '이 날 기록 보기'를 풀어 칸마다 다른 날을 보지 않게 한다
+  const latestDay = windows?.days(0)[6].getTime();
+  useEffect(() => setJump(null), [patient?.id, latestDay]);
+  useEffect(() => setK(0), [patient?.id]);
 
   if (!patient) {
     return (
@@ -118,6 +129,7 @@ export default function Workspace({ patients, doctorName, today, sample, failed,
       <header className="topbar">
         <div className="brand"><img src={logo} alt="SocDoc" width="49" height="24" /></div>
         <span className="current-page">환자 기록</span>
+        {refresh && <RefreshStatus {...refresh} />}
         <div className="doctor-profile">{sample && <span className="sample">예시 데이터</span>}<span className="doctor-avatar">{doctorName.slice(0, 1)}</span><span><b>{doctorName} 선생님</b></span></div>
         <Button appearance="subtle" size="small" className="sign-out" icon={<Icon name="logout" size={16} />} onClick={onSignOut}>{sample ? '예시 닫기' : '로그아웃'}</Button>
       </header>

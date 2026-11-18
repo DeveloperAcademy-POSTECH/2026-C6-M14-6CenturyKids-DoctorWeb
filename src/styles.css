@@ -762,3 +762,13 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .symptom .sym-records .sym-filter { top: -24px; margin-top: -16px; padding-top: 24px; }
 /* 좁은 화면은 칸 안 스크롤이 없어 화면 기준으로 붙으므로 상단 바 아래에 둔다 */
 @media (max-width: 800px) { .symptom .sym-records .sym-filter { top: calc(var(--topbar-h) - 24px); } }
+
+/* 상단 바: 마지막 업데이트 시각과 새로고침 */
+.refresh-status { margin-left: auto; display: flex; align-items: center; gap: 4px; color: var(--fg-sub); font-size: 13px; white-space: nowrap; }
+.topbar .refresh-status + .doctor-profile { margin-left: 0; }
+.refresh-failed { color: var(--alert); font-weight: 500; }
+.refresh-btn { min-width: 32px; min-height: 32px; }
+.refresh-btn[aria-busy="true"] svg { animation: refresh-spin .9s linear infinite; }
+@keyframes refresh-spin { to { transform: rotate(360deg); } }
+@media (pointer: coarse) { .refresh-btn { min-width: 44px; min-height: 44px; } }
+@media (max-width: 480px) { .refresh-time { display: none; } }
