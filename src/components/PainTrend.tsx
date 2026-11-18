@@ -72,7 +72,9 @@ export default function PainTrend({ records, days }: { records: PainRecord[]; da
               <button key={d.key} type="button" className="trend-day" aria-pressed={d.key === selected}
                 aria-label={`${d.fullDate} 통증 기록 보기`}
                 style={{ left: PLOT.left + i * step - step / 2, width: step }}
-                onClick={() => setSelected(d.key === selected ? null : d.key)}>{d.label}</button>
+                onClick={() => setSelected(d.key === selected ? null : d.key)}>
+                <span className="trend-month">{d.label.slice(0, d.label.indexOf('/') + 1)}</span>{d.label.slice(d.label.indexOf('/') + 1)}
+              </button>
             ))}
           </div>
         )}

@@ -761,7 +761,9 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .trend-day { position: absolute; top: 2px; height: 28px; padding: 0; border: 0; background: transparent; color: var(--fg-sub); font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; cursor: pointer; }
 /* 칸 안에 작은 알약: 눌러 볼 수 있다는 표시 */
 .trend-day::before { content: ""; position: absolute; inset: 0 3px; z-index: -1; border-radius: 999px; background: var(--surface-2); }
-.trend-days { z-index: 1; isolation: isolate; }
+.trend-days { z-index: 1; isolation: isolate; container-type: inline-size; }
+/* 그래프가 좁으면 날짜가 겹치지 않게 월을 빼고 일만 보여 준다 */
+@container (max-width: 300px) { .trend-month { display: none; } }
 .trend-day:hover { color: var(--fg); }
 .trend-day[aria-pressed="true"] { color: var(--fg); font-weight: 600; }
 .trend-day[aria-pressed="true"]::before { background: transparent; }
