@@ -170,8 +170,8 @@ function WeekGrid({ days, byDay, rows, focusDay, onPick }: {
             <tr>
               <th scope="col" aria-label="증상" />
               {days.map((t) => (
-                <th key={dayKey(t)} scope="col" className={`${byDay.has(dayKey(t)) ? '' : 'off'} ${focusDay === dayKey(t) ? 'focus' : ''}`}>
-                  <b>{t.getMonth() + 1}/{t.getDate()}</b>{weekday(t)}
+                <th key={dayKey(t)} scope="col" aria-label={mdw(t)} className={`${byDay.has(dayKey(t)) ? '' : 'off'} ${focusDay === dayKey(t) ? 'focus' : ''}`}>
+                  <b><span className="grid-month">{t.getMonth() + 1}/</span>{t.getDate()}</b>{weekday(t)}
                 </th>
               ))}
             </tr>
