@@ -592,7 +592,15 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 /* A cell always owns 44px, whether it contains a button, dot, dash or unknown. */
 .sym-grid tbody tr { height:44px; }
 .sym-grid tbody th,.sym-grid tbody td { height:44px; padding:0 4px; vertical-align:middle; line-height:18px; }
-.sym-grid tbody th { padding-left:8px; }
+.sym-grid tbody th { min-width:0; padding-left:4px; padding-right:2px; }
+/* 날짜가 두 자리여도 7일이 가로 스크롤 없이 모두 보이게 칸 너비를 나눈다 */
+.sym-grid { min-width:0; table-layout:fixed; }
+.sym-grid thead th { padding-inline:0; white-space:nowrap; }
+.sym-grid thead th:first-child { width:72px; }
+.sym-grid tbody td { padding-inline:0; }
+/* 칸이 좁으면 월을 빼고 일만 보여 준다 (보는 기간은 환자 띠에 있다) */
+.grid-wrap { container-type:inline-size; }
+@container (max-width:340px) { .grid-month { display:none; } }
 .sym-grid .mark-btn,.state-slot { display:grid; place-items:center; width:28px; height:44px; min-height:44px; margin:0 auto; padding:0; border-radius:6px; vertical-align:middle; }
 .sym-state { display:inline-grid; place-items:center; width:18px; height:18px; flex:0 0 18px; color:var(--fg-sub); }
 .state-dot { width:7px; height:7px; border-radius:50%; background:var(--green); }
@@ -753,7 +761,9 @@ h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .trend-day { position: absolute; top: 2px; height: 28px; padding: 0; border: 0; background: transparent; color: var(--fg-sub); font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; cursor: pointer; }
 /* 칸 안에 작은 알약: 눌러 볼 수 있다는 표시 */
 .trend-day::before { content: ""; position: absolute; inset: 0 3px; z-index: -1; border-radius: 999px; background: var(--surface-2); }
-.trend-days { z-index: 1; isolation: isolate; }
+.trend-days { z-index: 1; isolation: isolate; container-type: inline-size; }
+/* 그래프가 좁으면 날짜가 겹치지 않게 월을 빼고 일만 보여 준다 */
+@container (max-width: 300px) { .trend-month { display: none; } }
 .trend-day:hover { color: var(--fg); }
 .trend-day[aria-pressed="true"] { color: var(--fg); font-weight: 600; }
 .trend-day[aria-pressed="true"]::before { background: transparent; }
